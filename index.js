@@ -1,12 +1,12 @@
 require('dotenv').load({ silent: true });
 
 const {
-  NAME = 'feedbackfruits-knowledge-search-broker-v11',
+  NAME = 'feedbackfruits-knowledge-search-broker-v12',
   ELASTICSEARCH_ADRESS = 'http://localhost:9200',
   KNOWLEDGE_ADDRESS = 'http://localhost:4000',
   KAFKA_ADDRESS = 'tcp://kafka:9092',
   INPUT_TOPIC = 'quad_updates',
-  INDEX_NAME = 'knowledge-v3',
+  INDEX_NAME = 'knowledge-v4',
 } = process.env;
 
 const memux = require('memux');
@@ -32,22 +32,25 @@ const { source, sink, send } = memux({
 });
 
 const queue = new PQueue({
-  concurrency: 32
+  concurrency: 100
 });
 
 const regex = /<http:\/\/academic.microsoft.com\/#\/detail\/\d+>/;
 
 let i = 0;
 
-function index(type, doc) {
-  console.log(i++);
+function index(type, docs) {
+  if (docs.length === 0) return Promise.resolve();
+  console.log(`Indexing: ${i++}, docs length ${docs.length}.`);
   // console.log('ASDaSADASDASD', type, doc);
-  let { id } = doc;
-  return client.index({
-    index: INDEX_NAME,
-    id: id,
-    type,
-    body: doc
+  return client.bulk({
+    body: docs.map(doc => {
+      let { id } = doc;
+      return [
+        { index: { _index: INDEX_NAME, _type: type, _id: id } },
+        doc
+      ];
+    }).reduce((memo, x) => memo.concat(x), [])
   });
 }
 
@@ -60,14 +63,15 @@ source.flatMap(({ action: { type, quad: { subject, object } }, progress }) => {
   return queue.add(() => {
     if (!subject.match(regex) && !object.match(regex)) return Promise.resolve();
     return Promise.all([subject, object].filter(regex.test.bind(regex)).map(id => {
-      const fetcher = subject in fetchers ? fetchers[subject] : (fetchers[subject] = pDebounce(makeFetcher(id), 2000));
-      return fetcher().then(index.bind(undefined, 'fieldOfStudy'));
-    }));
+      const fetcher = id in fetchers ? fetchers[id] : (fetchers[id] = pDebounce(makeFetcher(id), 2000)); //.then((res) => { delete fetchers[id]; return res; })
+      return fetcher();
+    })).then(docss => docss.reduce((memo, docs) => memo.concat(docs), [])).then(index.bind(undefined, 'fieldOfStudy'));
   }).then(() => progress)
 }).subscribe(sink);
 
 const makeFetcher = id => () => {
-  return fetch(`${KNOWLEDGE_ADDRESS}`, {
+  if (id in fetchers) return fetchers[id];
+  return fetchers[id] = fetch(`${KNOWLEDGE_ADDRESS}`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'
@@ -81,6 +85,7 @@ const makeFetcher = id => () => {
       }`
     })
   }).then(response => response.json()).then(({data: { fieldOfStudy }}) => {
+    delete fetchers[id];
     return fieldOfStudy;
   });
 }
