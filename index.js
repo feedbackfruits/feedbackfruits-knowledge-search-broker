@@ -1,7 +1,7 @@
 require('dotenv').load({ silent: true });
 
 const {
-  NAME = 'feedbackfruits-knowledge-search-broker-v19',
+  NAME = 'feedbackfruits-knowledge-search-broker-v20',
   ELASTICSEARCH_ADDRESS = 'http://localhost:9200',
   KNOWLEDGE_ADDRESS = 'http://localhost:4000',
   KAFKA_ADDRESS = 'tcp://kafka:9092',
