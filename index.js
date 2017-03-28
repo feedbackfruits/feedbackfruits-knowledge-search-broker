@@ -1,18 +1,19 @@
 require('dotenv').load({ silent: true });
 
 const {
-  NAME = 'feedbackfruits-knowledge-search-broker-v11',
-  ELASTICSEARCH_ADRESS = 'http://localhost:9200',
+  NAME = 'feedbackfruits-knowledge-search-broker-v19',
+  ELASTICSEARCH_ADDRESS = 'http://localhost:9200',
   KNOWLEDGE_ADDRESS = 'http://localhost:4000',
   KAFKA_ADDRESS = 'tcp://kafka:9092',
   INPUT_TOPIC = 'quad_updates',
-  INDEX_NAME = 'knowledge-v3',
+  ELASTICSEARCH_INDEX_NAME = 'knowledge',
 } = process.env;
 
 const memux = require('memux');
 const { Observable: { empty } } = require('rxjs');
 
 const PQueue = require('p-queue');
+const PMap = require('p-map');
 const pThrottle = require('p-throttle')
 const pDebounce = require('p-debounce');
 
@@ -20,10 +21,9 @@ const elasticsearch = require('elasticsearch');
 const fetch = require('node-fetch');
 
 const client = new elasticsearch.Client( {
-  host: ELASTICSEARCH_ADRESS,
-  apiVersion: '2.4'
+  host: ELASTICSEARCH_ADDRESS,
+  apiVersion: '5.x'
 });
-
 
 const { source, sink, send } = memux({
   name: NAME,
@@ -32,41 +32,99 @@ const { source, sink, send } = memux({
 });
 
 const queue = new PQueue({
-  concurrency: 32
+  concurrency: 100
 });
 
 const regex = /<http:\/\/academic.microsoft.com\/#\/detail\/\d+>/;
 
 let i = 0;
 
-function index(type, doc) {
-  console.log(i++);
-  // console.log('ASDaSADASDASD', type, doc);
-  let { id } = doc;
-  return client.index({
-    index: INDEX_NAME,
-    id: id,
-    type,
-    body: doc
+const deirify = iri => iri.slice(1, iri.length-1)
+
+function dedup(arr) {
+  return Object.keys(arr.reduce((memo, value) => {
+    memo[value] = true;
+    return memo;
+  }, {}));
+}
+
+const mapping = {
+   "settings": {
+      "analysis": {
+         "filter": {
+            "edge_ngram_filter": {
+               "type": "edge_ngram",
+               "min_gram": 2,
+               "max_gram": 20
+            }
+         },
+         "analyzer": {
+            "edge_ngram_analyzer": {
+               "type": "custom",
+               "tokenizer": "standard",
+               "filter": [
+                  "lowercase",
+                  "edge_ngram_filter"
+               ]
+            }
+         }
+      }
+   },
+   "mappings": {
+      "fieldOfStudy": {
+         "properties": {
+            "name": {
+               "type": "text",
+               "analyzer": "edge_ngram_analyzer",
+               "search_analyzer": "english"
+            }
+         }
+      }
+   }
+};
+
+function createIndex() {
+  console.log(`Creating index...`);
+  return new Promise((resolve, reject) => {
+    client.indices.create({ index: ELASTICSEARCH_INDEX_NAME, body: mapping }, (res, data) => {
+      if ('error' in data) return reject(data.error);
+      console.log(`Index created.`);
+      return resolve(data);
+    });
   });
 }
 
-const fetchers = {};
+function indexExists() {
+  return new Promise((resolve, reject) => {
+    client.indices.exists({ index: ELASTICSEARCH_INDEX_NAME }, (res, data) => {
+      return resolve(data);
+    });
+  })
+}
 
-const deirify = iri => iri.slice(1, iri.length-1)
+function index(type, docs) {
+  if (docs.length === 0) return Promise.resolve();
+  console.log(`Indexing: ${i++}, docs length ${docs.length}.`);
 
-source.flatMap(({ action: { type, quad: { subject, object } }, progress }) => {
-  console.log(subject, object);
-  return queue.add(() => {
-    if (!subject.match(regex) && !object.match(regex)) return Promise.resolve();
-    return Promise.all([subject, object].filter(regex.test.bind(regex)).map(id => {
-      const fetcher = subject in fetchers ? fetchers[subject] : (fetchers[subject] = pDebounce(makeFetcher(id), 2000));
-      return fetcher().then(index.bind(undefined, 'fieldOfStudy'));
-    }));
-  }).then(() => progress)
-}).subscribe(sink);
+  return new Promise((resolve, reject) => {
+    client.bulk({
+      body: docs.map(doc => {
+        let { id, name } = doc;
+        return [
+          { index: { _index: ELASTICSEARCH_INDEX_NAME, _type: type, _id: id } },
+          doc
+        ];
+      }).reduce((memo, x) => memo.concat(x), [])
+    }, (err, res) => {
+      if (err) return reject(err);
+      if (res['errors'] === true) return reject(res);
+      return resolve(res);
+    });
+  });
+}
 
-const makeFetcher = id => () => {
+function fetchDocs(ids) {
+  console.log(`Fetching docs, ids length ${ids.length}.`);
   return fetch(`${KNOWLEDGE_ADDRESS}`, {
     method: 'POST',
     headers: {
@@ -74,75 +132,37 @@ const makeFetcher = id => () => {
     },
     body: JSON.stringify({
       query: `query {
-        fieldOfStudy(id: "${deirify(id)}") {
+        fieldsOfStudy(id: ${JSON.stringify(ids.map(id => deirify(id)))}, first: ${ids.length}) {
           id,
           name
         }
       }`
     })
-  }).then(response => response.json()).then(({data: { fieldOfStudy }}) => {
-    return fieldOfStudy;
+  }).then(response => response.json()).then((res) => {
+    let { data: { fieldsOfStudy } } = res;
+    return fieldsOfStudy && fieldsOfStudy.length && fieldsOfStudy[0] ? fieldsOfStudy : [];
   });
 }
 
-// require('dotenv').load({ silent: true });
-// const {
-//   NAME = 'feedbackfruits-knowledge-search-broker',
-//
-//   ELASTICSEARCH_ADRESS = 'http://localhost:9200',
-//   INDEX_NAME = 'knowledge',
-//
-//   KAFKA_ADDRESS = 'tcp://kafka:9092',
-//   INPUT_TOPIC = 'quad_update_requests',
-//   OUTPUT_TOPIC = 'quad_updates',
-// } = process.env;
-//
-// const elasticsearch = require('elasticsearch');
-// const memux = require('memux');
-// const { Observable: { empty } } = require('rxjs');
-// const PQueue = require('p-queue');
-//
+function mapAction({ action: { type, quad: { subject, object } }, progress }) {
+  if (!subject.match(regex) && !object.match(regex)) return [];
+  return [subject, object].filter(regex.test.bind(regex));
+}
 
-// const { source, sink, send } = memux({
-//   name: NAME,
-//   url: KAFKA_ADDRESS,
-//   input: INPUT_TOPIC,
-//   output: OUTPUT_TOPIC
-// });
-//
-// const queue = new PQueue({
-//   concurrency: 32
-// });
-//
-// const onError = (error) => console.error(error);
-//
-// function index(type, doc) {
-//   let { id } = doc;
-//   return client.index({
-//     index: INDEX_NAME,
-//     id: id,
-//     type,
-//     body: doc
-//   });
-// }
-//
-// const regex = /<https:\/\/academic.microsoft.com\/#\/detail\/\d+>/;
-//
-// function getTopic(subject) {
-//   if (!subject.match(regex)) return null;
-//
-// }
-//
-// function mapTopic(topic) {
-//   return topic;
-// }
-//
-// source.flatMap(({ action: { type, quad }, progress }) => {
-//   return queue.add(async () => {
-//     let { subject } = quad;
-//     let topic = await getTopic(subject);
-//     if (topic != null) {
-//       return index('topic', mapTopic(topic));
-//     }
-//   }).then(() => progress);
-// }).subscribe(sink, onError);
+function doThings() {
+  return indexExists().then(exists => {
+    if (!exists) return createIndex();
+  }).then(() => {
+    source.bufferCount(100).flatMap((actions) => {
+      let { progress } = actions[actions.length - 1];
+      return queue.add(() => {
+        let ids = dedup(actions.map(mapAction).reduce((memo, x) => memo.concat(x), []));
+
+        if (ids.length === 0) return Promise.resolve();
+        return fetchDocs(ids).then(index.bind(undefined, 'fieldOfStudy'));
+      }).then(() => progress);
+    }).subscribe(sink);
+  });
+}
+
+doThings().catch(err => console.error(err));
