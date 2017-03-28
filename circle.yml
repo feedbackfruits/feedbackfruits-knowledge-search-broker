@@ -7,8 +7,8 @@ test:
 deployment:
   production:
     tag: /v[0-9]+(\.[0-9]+)*/
-    commands:
-      - heroku container:push web -a fbf-knowledge-search-broker
+    heroku:
+      appname: fbf-knowledge-search-broker
   staging:
     branch: master
     heroku:
