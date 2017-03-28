@@ -2,7 +2,7 @@
   "name": "feedbackfruits-knowledge-search-broker",
   "version": "1.0.0",
   "description": "",
-  "main": "lib/index.js",
+  "main": "index.js",
   "scripts": {
     "start": "node index",
     "watch": "nodemon index"
