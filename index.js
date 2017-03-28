@@ -6,7 +6,7 @@ const {
   KNOWLEDGE_ADDRESS = 'http://localhost:4000',
   KAFKA_ADDRESS = 'tcp://kafka:9092',
   INPUT_TOPIC = 'quad_updates',
-  INDEX_NAME = 'knowledge',
+  ELASTICSEARCH_INDEX_NAME = 'knowledge',
 } = process.env;
 
 const memux = require('memux');
@@ -86,7 +86,7 @@ const mapping = {
 function createIndex() {
   console.log(`Creating index...`);
   return new Promise((resolve, reject) => {
-    client.indices.create({ index: INDEX_NAME, body: mapping }, (res, data) => {
+    client.indices.create({ index: ELASTICSEARCH_INDEX_NAME, body: mapping }, (res, data) => {
       if ('error' in data) return reject(data.error);
       console.log(`Index created.`);
       return resolve(data);
@@ -96,7 +96,7 @@ function createIndex() {
 
 function indexExists() {
   return new Promise((resolve, reject) => {
-    client.indices.exists({ index: INDEX_NAME }, (res, data) => {
+    client.indices.exists({ index: ELASTICSEARCH_INDEX_NAME }, (res, data) => {
       return resolve(data);
     });
   })
@@ -111,7 +111,7 @@ function index(type, docs) {
       body: docs.map(doc => {
         let { id, name } = doc;
         return [
-          { index: { _index: INDEX_NAME, _type: type, _id: id } },
+          { index: { _index: ELASTICSEARCH_INDEX_NAME, _type: type, _id: id } },
           doc
         ];
       }).reduce((memo, x) => memo.concat(x), [])

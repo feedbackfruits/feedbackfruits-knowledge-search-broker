@@ -12,4 +12,4 @@ deployment:
   staging:
     branch: master
     heroku:
-      appname: staging-fbf-knowledge-search-broke
+      appname: staging-fbf-knowledge-search-b
