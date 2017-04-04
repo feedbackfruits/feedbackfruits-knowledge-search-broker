@@ -1,7 +1,7 @@
 require('dotenv').load({ silent: true });
 
 const {
-  NAME = 'feedbackfruits-knowledge-search-broker-v21',
+  NAME = 'feedbackfruits-knowledge-search-broker-v22',
   ELASTICSEARCH_ADDRESS = 'http://localhost:9200',
   KNOWLEDGE_ADDRESS = 'http://localhost:4000',
   KAFKA_ADDRESS = 'tcp://kafka:9092',
@@ -32,7 +32,7 @@ const { source, sink, send } = memux({
 });
 
 const queue = new PQueue({
-  concurrency: 100
+  concurrency: 50
 });
 
 const regex = /<http:\/\/dbpedia\.org\/resource\/(\w+)>/;
@@ -117,7 +117,9 @@ function index(type, docs) {
       }).reduce((memo, x) => memo.concat(x), [])
     }, (err, res) => {
       if (err) return reject(err);
-      if (res['errors'] === true) return reject(res);
+      if (res['errors'] === true) {
+        return reject(res.map(item => item.index.error).filter(x => x).map(x => x.reason));
+      }
       return resolve(res);
     });
   });
