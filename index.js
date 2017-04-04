@@ -1,7 +1,7 @@
 require('dotenv').load({ silent: true });
 
 const {
-  NAME = 'feedbackfruits-knowledge-search-broker-v20',
+  NAME = 'feedbackfruits-knowledge-search-broker-v21',
   ELASTICSEARCH_ADDRESS = 'http://localhost:9200',
   KNOWLEDGE_ADDRESS = 'http://localhost:4000',
   KAFKA_ADDRESS = 'tcp://kafka:9092',
@@ -35,7 +35,7 @@ const queue = new PQueue({
   concurrency: 100
 });
 
-const regex = /<http:\/\/academic.microsoft.com\/#\/detail\/\d+>/;
+const regex = /<http:\/\/dbpedia\.org\/resource\/(\w+)>/;
 
 let i = 0;
 
@@ -71,7 +71,7 @@ const mapping = {
       }
    },
    "mappings": {
-      "fieldOfStudy": {
+      "entity": {
          "properties": {
             "name": {
                "type": "text",
@@ -132,15 +132,15 @@ function fetchDocs(ids) {
     },
     body: JSON.stringify({
       query: `query {
-        fieldsOfStudy(id: ${JSON.stringify(ids.map(id => deirify(id)))}, first: ${ids.length}) {
+        entities(id: ${JSON.stringify(ids.map(id => deirify(id)))}, first: ${ids.length}) {
           id,
           name
         }
       }`
     })
   }).then(response => response.json()).then((res) => {
-    let { data: { fieldsOfStudy } } = res;
-    return fieldsOfStudy && fieldsOfStudy.length && fieldsOfStudy[0] ? fieldsOfStudy : [];
+    let { data: { entities } } = res;
+    return entities && entities.length && entities[0] ? entities : [];
   });
 }
 
@@ -159,7 +159,7 @@ function doThings() {
         let ids = dedup(actions.map(mapAction).reduce((memo, x) => memo.concat(x), []));
 
         if (ids.length === 0) return Promise.resolve();
-        return fetchDocs(ids).then(index.bind(undefined, 'fieldOfStudy'));
+        return fetchDocs(ids).then(index.bind(undefined, 'entity'));
       }).then(() => progress);
     }).subscribe(sink);
   });
