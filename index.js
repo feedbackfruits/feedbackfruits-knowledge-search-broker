@@ -1,11 +1,12 @@
 require('dotenv').load({ silent: true });
 
 const {
-  NAME = 'feedbackfruits-knowledge-search-broker-v22',
+  NAME = 'feedbackfruits-knowledge-search-broker-v25',
   ELASTICSEARCH_ADDRESS = 'http://localhost:9200',
-  KNOWLEDGE_ADDRESS = 'http://localhost:4000',
+  GIZMO_ENDPONT = 'http://staging-fbf-cayley.herokuapp.com/api/v1/query/gizmo',
+  KNOWLEDGE_ADDRESS = 'https://staging-api.explain.direct',
   KAFKA_ADDRESS = 'tcp://kafka:9092',
-  INPUT_TOPIC = 'quad_updates',
+  INPUT_TOPIC = 'staging_quad_updates',
   ELASTICSEARCH_INDEX_NAME = 'knowledge',
 } = process.env;
 
@@ -34,6 +35,10 @@ const { source, sink, send } = memux({
 const queue = new PQueue({
   concurrency: 50
 });
+
+const Context = {
+  about: '<http://schema.org/about>',
+}
 
 const regex = /<http:\/\/dbpedia\.org\/resource\/(\w+)>/;
 
@@ -77,6 +82,9 @@ const mapping = {
                "type": "text",
                "analyzer": "edge_ngram_analyzer",
                "search_analyzer": "english"
+            },
+            "count": {
+              "type": "integer"
             }
          }
       }
@@ -102,25 +110,57 @@ function indexExists() {
   })
 }
 
+function getCounts(docs) {
+  let iris = docs.map(doc => `"<${doc.id}>"`);
+  let query = `graph.V(${iris.join(", ")}).ForEach(function(d) {
+      g.V(d.id)
+      	.In("<http://schema.org/about>")
+      	.Count()
+      	.ForEach(function(e) {
+          g.Emit({
+            id: d.id,
+            count: e.id
+          });
+        })
+    })`;
+
+  return fetch(GIZMO_ENDPONT, {
+    method: 'POST',
+    body: query
+  }).then(response => response.json()).then(counts => {
+    let reduced = counts.result.reduce((memo, { id, count }) => {
+      memo[deirify(id)] = count;
+      return memo;
+    }, {});
+
+    console.log("Counts:", reduced);
+
+    return reduced;
+  });
+}
+
 function index(type, docs) {
   if (docs.length === 0) return Promise.resolve();
   console.log(`Indexing: ${i++}, docs length ${docs.length}.`);
 
   return new Promise((resolve, reject) => {
-    client.bulk({
-      body: docs.map(doc => {
-        let { id, name } = doc;
-        return [
-          { index: { _index: ELASTICSEARCH_INDEX_NAME, _type: type, _id: id } },
-          doc
-        ];
-      }).reduce((memo, x) => memo.concat(x), [])
-    }, (err, res) => {
-      if (err) return reject(err);
-      if (res['errors'] === true) {
-        return reject(res.map(item => item.index.error).filter(x => x).map(x => x.reason));
-      }
-      return resolve(res);
+
+    return getCounts(docs).then(counts => {
+      client.bulk({
+        body: docs.map(doc => {
+          let { id, name } = doc;
+          return [
+            { index: { _index: ELASTICSEARCH_INDEX_NAME, _type: type, _id: id } },
+            Object.assign({}, doc, { count: counts[id] })
+          ];
+        }).reduce((memo, x) => memo.concat(x), [])
+      }, (err, res) => {
+        if (err) return reject(err);
+        if (res['errors'] === true) {
+          return reject(res.map(item => item.index.error).filter(x => x).map(x => x.reason));
+        }
+        return resolve(res);
+      });
     });
   });
 }
