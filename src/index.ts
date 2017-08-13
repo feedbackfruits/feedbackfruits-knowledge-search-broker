@@ -1,38 +1,49 @@
-require('dotenv').load({ silent: true });
+import { Operation } from 'memux';
+import { Doc, Broker, Config as _Config } from 'feedbackfruits-knowledge-engine';
+import * as Config from './config';
 
-const {
-  NAME = 'feedbackfruits-knowledge-search-broker-v26',
-  KAFKA_ADDRESS = 'tcp://kafka:9092',
-  INPUT_TOPIC = 'staging_quad_updates',
-} = process.env;
-
-import memux = require('memux');
-import PQueue = require('p-queue');
-
+import { isOperableDoc, isEntityDoc, isResourceDoc, docToResource, docToEntity } from './helpers';
 import * as ElasticSearch from './elasticsearch';
-import * as Entity from './entity';
 
-const { source, sink, send } = memux({
-  name: NAME,
-  url: KAFKA_ADDRESS,
-  input: INPUT_TOPIC,
-});
+async function broker(doc: Doc) {
+  console.log(`Brokering ${doc['@id']}`);
+  if (isEntityDoc(doc)) {
+    const entity = docToEntity(doc);
+    console.log('Indexing:', entity);
+    return ElasticSearch.index('entity', [ entity ]);
+  } else if (isResourceDoc(doc)) {
+    const resource = docToResource(doc);
+    console.log('Indexing:', resource);
+    return ElasticSearch.index('resource', [ resource ]);
+  } else {
+    throw new Error(`Doc ${doc['@id']} can not be brokered.`);
+  }
+}
 
-const queue = new PQueue({
-  concurrency: 50
-});
-
-async function doThings() {
+export default async function init({ name }) {
   const exists = await ElasticSearch.indexExists()
   if (!exists) await ElasticSearch.createIndex();
 
-  return source.bufferCount(100).flatMap((actions) => {
-    let { progress } = actions[actions.length - 1];
-    return queue.add(() => {
-      return Entity.handleActions(actions);
-    }).then(() => progress);
-  }).subscribe(sink);
+  const receive = async (operation: Operation<Doc>) => {
+    console.log('Received operation:', operation);
+    const { action, data: doc } = operation;
+    if (!(action === 'write') || !isOperableDoc(doc)) return;
 
+    return broker(doc);
+  }
+
+  return await Broker({
+    name,
+    receive,
+    customConfig: Config as any as typeof _Config.Base
+  });
 }
 
-doThings().catch(err => console.error(err));
+// Start the server when executed directly
+declare const require: any;
+if (require.main === module) {
+  console.log("Running as script.");
+  init({
+    name: Config.NAME,
+  }).catch(console.error);
+}

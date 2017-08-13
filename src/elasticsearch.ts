@@ -7,43 +7,7 @@ const {
   ELASTICSEARCH_INDEX_NAME,
 } = Config;
 
-export const mapping = {
-   "settings": {
-      "analysis": {
-         "filter": {
-            "edge_ngram_filter": {
-               "type": "edge_ngram",
-               "min_gram": 2,
-               "max_gram": 20
-            }
-         },
-         "analyzer": {
-            "edge_ngram_analyzer": {
-               "type": "custom",
-               "tokenizer": "standard",
-               "filter": [
-                  "lowercase",
-                  "edge_ngram_filter"
-               ]
-            }
-         }
-      }
-   },
-   "mappings": {
-      "entity": {
-         "properties": {
-            "name": {
-               "type": "text",
-               "analyzer": "edge_ngram_analyzer",
-               "search_analyzer": "english"
-            },
-            "count": {
-              "type": "integer"
-            }
-         }
-      }
-   }
-};
+import mapping from './mapping';
 
 export function createIndex() {
   console.log(`Creating index...`);
@@ -65,23 +29,24 @@ export function indexExists() {
 }
 
 let i = 0;
-export function index(type, docs) {
+export function index(type, docs): Promise<void> {
   if (docs.length === 0) return Promise.resolve();
   console.log(`Indexing: ${i++}, docs length ${docs.length}.`);
 
   return new Promise((resolve, reject) => {
       client.bulk({
         body: docs.map(doc => {
-          let { id, name } = doc;
+          let { id } = doc;
           return [
             { index: { _index: ELASTICSEARCH_INDEX_NAME, _type: type, _id: id } },
             doc
           ];
         }).reduce((memo, x) => memo.concat(x), [])
       }, (err, res) => {
+        // console.log('ElasticSearch response:', err, JSON.stringify(res));
         if (err) return reject(err);
         if (res['errors'] === true) {
-          return reject(res.map(item => item.index.error).filter(x => x).map(x => x.reason));
+          return reject(new Error(JSON.stringify(res.items.map(item => item.index.error).filter(x => x).map(x => x.reason))));
         }
         return resolve(res);
       });

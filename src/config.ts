@@ -1,19 +1,19 @@
 require('dotenv').load({ silent: true });
 
 const {
-  NAME = 'feedbackfruits-knowledge-search-broker-v25',
+  NAME = 'feedbackfruits-knowledge-search-broker',
   ELASTICSEARCH_ADDRESS = 'http://localhost:9200',
-  GIZMO_ENDPONT = 'http://staging-fbf-cayley.herokuapp.com/api/v1/query/gizmo',
+  CAYLEY_ADDRESS = 'http://cayley:64210',
   KNOWLEDGE_ADDRESS = 'https://staging-api.explain.direct',
-  KAFKA_ADDRESS = 'tcp://kafka:9092',
-  INPUT_TOPIC = 'staging_quad_updates',
+  KAFKA_ADDRESS = 'tcp://localhost:9092',
+  INPUT_TOPIC = 'staging_updates',
   ELASTICSEARCH_INDEX_NAME = 'knowledge',
 } = process.env;
 
 export {
   NAME,
   ELASTICSEARCH_ADDRESS,
-  GIZMO_ENDPONT,
+  CAYLEY_ADDRESS,
   KNOWLEDGE_ADDRESS,
   KAFKA_ADDRESS,
   INPUT_TOPIC,

@@ -1,0 +1,41 @@
+{
+  "id": "https://www.youtube.com/watch?v=OFBI_rNDZE0",
+  "type": "https://knowledge.express/Resource",
+  "name": "Worked example: Scaling unit vectors",
+  "license": "http://creativecommons.org/licenses/by-nc-sa/3.0",
+  "sourceOrganization": "KhanAcademy",
+  "entities": [
+    {
+      "id": "http://dbpedia.org/resource/Imaginary_unit",
+      "name": "Imaginary unit"
+    },
+    {
+      "id": "http://dbpedia.org/resource/Complex_number",
+      "name": "Complex number"
+    },
+    {
+      "id": "http://dbpedia.org/resource/Square",
+      "name": "Square"
+    },
+    {
+      "id": "http://dbpedia.org/resource/Square_number",
+      "name": "Square number"
+    },
+    {
+      "id": "http://dbpedia.org/resource/Real_number",
+      "name": "Real number"
+    },
+    {
+      "id": "http://dbpedia.org/resource/Linear_algebra",
+      "name": "Linear algebra"
+    },
+    {
+      "id": "http://dbpedia.org/resource/Square_root",
+      "name": "Square root"
+    },
+    {
+      "id": "http://dbpedia.org/resource/Elementary_mathematics",
+      "name": "Elementary mathematics"
+    }
+  ]
+}
