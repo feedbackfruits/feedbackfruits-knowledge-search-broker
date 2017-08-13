@@ -1,0 +1,70 @@
+version: 2
+jobs:
+  build:
+    working_directory: ~/feedbackfruits-knowledge-search-broker
+    docker:
+      - image: node:8
+        environment:
+          NODE_ENV: test
+          INPUT_TOPIC: test_updates
+          OUTPUT_TOPIC: test_update_requests
+          KAFKA_ADDRESS: localhost:9092
+          ELASTICSEARCH_ADDRESS: http://localhost:9200
+          ELASTICSEARCH_INDEX_NAME: test_knowledge
+          START_PAGE: 1
+          END_PAGE: 2
+          PAGE_SIZE: 10
+      - image: wurstmeister/zookeeper:latest
+      - image: wurstmeister/kafka:latest
+        environment:
+          KAFKA_AUTO_CREATE_TOPICS_ENABLE: false
+          KAFKA_ZOOKEEPER_CONNECT: localhost:2181
+          KAFKA_CREATE_TOPICS: "test_updates:1:1,test_update_requests:1:1"
+      - image: elasticsearch:5-alpine
+        environment:
+          ES_JAVA_OPTS: -Xms512m -Xmx1024m
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+          - node_modules-{{ checksum "package.json" }}-{{ checksum "package-lock.json" }}
+          - node_modules-
+
+      - run:
+          name: Install dependencies
+          command: npm install
+
+      - save_cache:
+          paths:
+            - node_modules
+          key: node_modules-{{ checksum "package.json" }}-{{ checksum "package-lock.json" }}
+
+      - run: npm test
+      - run: npm run coverage
+
+      - store_artifacts:
+          path: coverage
+
+      - run:
+          name: Install Heroku CLI
+          command: |
+            wget -qO- https://cli-assets.heroku.com/install-ubuntu.sh | sh
+
+      - deploy:
+          name: Deploy to Heroku
+          command: |
+            mkdir -p ~/.ssh
+            ssh-keyscan -H heroku.com >> ~/.ssh/known_hosts
+            if [ "${CIRCLE_BRANCH}" == "master" ]; then
+              "[[ ! -s \"$(git rev-parse --git-dir)/shallow\" ]] || git fetch --unshallow"
+              heroku config:add GIT_TAG=`git describe --tags --always` --app fbf-knowledge-search-broker
+              git push git@heroku.com:fbf-knowledge-search-broker.git $CIRCLE_SHA1:refs/heads/master -f
+              heroku ps:scale web=0 -a fbf-knowledge-search-broker
+              heroku run:detached npm start -a fbf-knowledge-search-broker
+            elif [[ $CIRCLE_TAG =~ ^v[0-9]+\.[0-9]+ ]]; then
+              "[[ ! -s \"$(git rev-parse --git-dir)/shallow\" ]] || git fetch --unshallow"
+              heroku config:add GIT_TAG=`git describe --tags --always` --app staging-fbf-knowledge-search-b
+              git push git@heroku.com:staging-fbf-knowledge-search-b.git $CIRCLE_SHA1:refs/heads/master -f
+              heroku ps:scale web=0 -a staging-fbf-knowledge-search-b
+              heroku run:detached npm start -a staging-fbf-knowledge-search-b
+            fi

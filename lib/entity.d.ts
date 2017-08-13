@@ -1,2 +1,4 @@
-declare function handleActions(actions: any): Promise<void | {}>;
-export { handleActions };
+export declare type Entity = {
+    id: string;
+    name: string;
+};
