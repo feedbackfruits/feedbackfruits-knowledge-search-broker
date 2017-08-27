@@ -7,7 +7,18 @@ const {
   ELASTICSEARCH_INDEX_NAME,
 } = Config;
 
+import { Entity } from './entity';
+import { Resource } from './resource';
+
 import mapping from './mapping';
+
+let awaitingCreation = null;
+export async function ensureIndex() {
+  const exists = await indexExists();
+  if (!exists && !awaitingCreation) awaitingCreation = createIndex();
+  await awaitingCreation;
+  return true;
+}
 
 export function createIndex() {
   console.log(`Creating index...`);
@@ -23,13 +34,14 @@ export function createIndex() {
 export function indexExists() {
   return new Promise((resolve, reject) => {
     client.indices.exists({ index: ELASTICSEARCH_INDEX_NAME }, (res, data) => {
+      console.log('Testing index existence:', data);
       return resolve(data);
     });
   })
 }
 
 let i = 0;
-export function index(type, docs): Promise<void> {
+export function index(type: string, docs: Array<Entity | Resource>): Promise<void> {
   if (docs.length === 0) return Promise.resolve();
   console.log(`Indexing: ${i++}, docs length ${docs.length}.`);
 
