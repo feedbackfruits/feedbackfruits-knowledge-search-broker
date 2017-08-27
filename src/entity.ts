@@ -3,32 +3,33 @@ import { Helpers } from 'feedbackfruits-knowledge-engine';
 
 import { CAYLEY_ADDRESS} from './config';
 
-async function getCounts(docs) {
-  let iris = docs.map(doc => `"<${doc.id}>"`);
-  let query = `graph.V(${iris.join(", ")}).ForEach(function(d) {
-      g.V(d.id)
-      	.In("<http://schema.org/about>")
-      	.Count()
-      	.ForEach(function(e) {
-          g.Emit({
-            id: d.id,
-            count: e.id
-          });
-        })
-    })`;
+export async function getCount(doc) {
+  // let iris = docs.map(doc => `"<${doc.id}>"`).join(", ");
+  console.log('Getting count for doc:', doc['@id'])
+  let query = `
+    g.Emit(g.V("${Helpers.iriify(doc['@id'])}")
+    	.In("<http://schema.org/about>")
+    	.Count());
+    `;
 
   return fetch(`${CAYLEY_ADDRESS}/api/v1/query/gizmo`, {
     method: 'POST',
     body: query
-  }).then(response => response.json()).then(counts => {
-    let reduced = counts.result.reduce((memo, { id, count }) => {
-      memo[Helpers.decodeIRI(id)] = count;
-      return memo;
-    }, {});
+  })
+  .then(async response => {
+    const text = await response.text();
+    console.log("Received response text:", text);
+    return JSON.parse(text);
+  })
+  .then((result) => {
+    // let reduced = counts.result.reduce((memo, { id, count }) => {
+    //   memo[Helpers.decodeIRI(id)] = count;
+    //   return memo;
+    // }, {});
 
-    console.log("Counts:", reduced);
+    console.log("Count:", result);
 
-    return reduced;
+    return result.result[0];
   });
 }
 
@@ -36,4 +37,5 @@ async function getCounts(docs) {
 export type Entity = {
   id: string,
   name: string,
+  count: number
 };

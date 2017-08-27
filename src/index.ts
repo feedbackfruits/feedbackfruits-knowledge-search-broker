@@ -8,7 +8,7 @@ import * as ElasticSearch from './elasticsearch';
 async function broker(doc: Doc) {
   console.log(`Brokering ${doc['@id']}`);
   if (isEntityDoc(doc)) {
-    const entity = docToEntity(doc);
+    const entity = await docToEntity(doc);
     console.log('Indexing:', entity);
     return ElasticSearch.index('entity', [ entity ]);
   } else if (isResourceDoc(doc)) {
@@ -21,7 +21,7 @@ async function broker(doc: Doc) {
 }
 
 export default async function init({ name }) {
-  const exists = await ElasticSearch.indexExists()
+  const exists = await ElasticSearch.ensureIndex()
   if (!exists) await ElasticSearch.createIndex();
 
   const receive = async (operation: Operation<Doc>) => {
@@ -45,5 +45,8 @@ if (require.main === module) {
   console.log("Running as script.");
   init({
     name: Config.NAME,
-  }).catch(console.error);
+  }).catch((e) => {
+    console.error(e);
+    throw e;
+  });
 }

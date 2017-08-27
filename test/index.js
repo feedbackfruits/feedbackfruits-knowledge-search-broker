@@ -5,7 +5,7 @@ import memux from 'memux';
 import fetch from 'node-fetch';
 import init from '../lib';
 import { NAME, KAFKA_ADDRESS, OUTPUT_TOPIC, INPUT_TOPIC, ELASTICSEARCH_ADDRESS, ELASTICSEARCH_INDEX_NAME } from '../lib/config';
-import { docToResource } from '../lib/helpers';
+import { docToResource, docToEntity } from '../lib/helpers';
 // console.log('Nocking: ', ELASTICSEARCH_ADDRESS, ELASTICSEARCH_INDEX_NAME);
 // nock(ELASTICSEARCH_ADDRESS)
 //   .get(`/${ELASTICSEARCH_INDEX_NAME}`)
@@ -54,15 +54,30 @@ const videoDoc = {
   ]
 };
 
+const entityDoc = {
+  '@id': 'http://dbpedia.org/resource/Divisor',
+  'http://schema.org/description': [
+    'In mathematics a divisor of an integer , also called a factor of , is an integer that can be multiplied by some other integer to produce . An integer is divisible by another integer if is a factor of , so that dividing by leaves no remainder.',
+  ],
+  'http://schema.org/image': [
+    'http://commons.wikimedia.org/wiki/Special:FilePath/Cuisenaire_ten.JPG',
+  ],
+  'http://schema.org/name': [
+    'Divisor',
+  ],
+  'http://www.w3.org/1999/02/22-rdf-syntax-ns#type': [
+    '<https://knowledge.express/Entity>',
+  ],
+};
+
+
 test('it works', async (t) => {
   try {
     const send = await memux({
       name: 'dummy-broker',
       url: KAFKA_ADDRESS,
       output: INPUT_TOPIC,
-      options: {
-        concurrency: 1
-      }
+      concurrency: 1
     });
 
     await init({
@@ -71,16 +86,31 @@ test('it works', async (t) => {
 
     await send({ action: 'write', key: videoDoc['@id'], data: videoDoc });
 
-    const timeoutPromise = new Promise((resolve, reject) => {
-      setTimeout(() => resolve(), 3000);
+    let timeoutPromise = new Promise((resolve, reject) => {
+      setTimeout(() => resolve(), 2000);
     });
 
     await timeoutPromise;
-    const resultPromise = await fetch(`${ELASTICSEARCH_ADDRESS}/${ELASTICSEARCH_INDEX_NAME}/_search`);
-    const result = await resultPromise.json();
-    console.log('Result data:', result);
-    return t.deepEqual(result.hits.hits[0]._source, {
+    const resourcePromise = await fetch(`${ELASTICSEARCH_ADDRESS}/${ELASTICSEARCH_INDEX_NAME}/resource/_search`);
+    const resources = await resourcePromise.json();
+    console.log('Result data:', resources);
+
+    t.deepEqual(resources.hits.hits[0]._source, {
       ...docToResource(videoDoc),
+    });
+
+    await send({ action: 'write', key: entityDoc['@id'], data: entityDoc });
+
+    const timeoutPromise2 = new Promise((resolve, reject) => {
+      setTimeout(() => resolve(), 2000);
+    });
+
+    await timeoutPromise2;
+    const entityPromise = await fetch(`${ELASTICSEARCH_ADDRESS}/${ELASTICSEARCH_INDEX_NAME}/entity/_search`);
+    const entities = await entityPromise.json();
+    console.log('Result data:', entities);
+    return t.deepEqual(entities.hits.hits[0]._source, {
+      ...(await docToEntity(entityDoc)),
     });
   } catch(e) {
     console.error(e);
