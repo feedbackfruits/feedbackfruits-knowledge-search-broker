@@ -28,7 +28,11 @@ export async function docToEntity(doc: Doc): Promise<Entity> {
 export function docToResource(doc: Doc): Resource {
   return {
     id: doc['@id'],
+    type: [].concat(doc[Helpers.decodeIRI(Context.type)]).map(Helpers.decodeIRI),
     name: [].concat(doc[Helpers.decodeIRI(Context.name)])[0],
+    description: [].concat(doc[Helpers.decodeIRI(Context.description)])[0],
+    license: [].concat(doc[Helpers.decodeIRI(Context.license)])[0],
+    sourceOrganization: [].concat(doc[Helpers.decodeIRI(Context.sourceOrganization)])[0],
     entities: doc[Helpers.decodeIRI(Context.about)].map(Helpers.decodeIRI).map((id: string) => ({ id }))
   };
 }

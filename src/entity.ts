@@ -5,7 +5,7 @@ import { CAYLEY_ADDRESS} from './config';
 
 export async function getCount(doc) {
   // let iris = docs.map(doc => `"<${doc.id}>"`).join(", ");
-  console.log('Getting count for doc:', doc['@id'])
+  console.log('Getting count for doc:', doc['@id'], 'from', CAYLEY_ADDRESS);
   let query = `
     g.Emit(g.V("${Helpers.iriify(doc['@id'])}")
     	.In("<http://schema.org/about>")
