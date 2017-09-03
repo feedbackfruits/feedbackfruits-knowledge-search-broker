@@ -35,7 +35,6 @@ jobs:
       - restore_cache:
           keys:
           - node_modules-{{ checksum "package.json" }}-{{ checksum "package-lock.json" }}
-          - node_modules-
 
       - run:
           name: Install dependencies
@@ -62,8 +61,8 @@ jobs:
           command: |
             mkdir -p ~/.ssh
             ssh-keyscan -H heroku.com >> ~/.ssh/known_hosts
-            if [ "${CIRCLE_BRANCH}" == "master" ]; then
-              git push git@heroku.com:staging-fbf-knowledge-search-b.git $CIRCLE_SHA1:refs/heads/master -f
-            elif [[ $CIRCLE_TAG =~ ^v[0-9]+\.[0-9]+ ]]; then
+            if git log -1 --pretty=%B | grep "^[0-9]\+\.[0-9]\+\.[0-9]\+$"; then
               git push git@heroku.com:fbf-knowledge-search-broker.git $CIRCLE_SHA1:refs/heads/master -f
+            elif [ "${CIRCLE_BRANCH}" == "master" ]; then
+              git push git@heroku.com:staging-fbf-knowledge-search-b.git $CIRCLE_SHA1:refs/heads/master -f
             fi
