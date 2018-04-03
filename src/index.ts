@@ -1,24 +1,26 @@
 import { Operation } from 'memux';
-import { Doc, Broker, Config as _Config } from 'feedbackfruits-knowledge-engine';
+import { Doc, Broker, Config as _Config, Context } from 'feedbackfruits-knowledge-engine';
 import * as Config from './config';
 
-import { isOperableDoc, isEntityDoc, isResourceDoc, docToResource, docToEntity } from './helpers';
+import * as Helpers from './helpers';
 import * as ElasticSearch from './elasticsearch';
 
-async function broker(doc: Doc) {
-  console.log(`Brokering ${doc['@id']}`);
-  if (isEntityDoc(doc)) {
-    const entity = await docToEntity(doc);
-    console.log('Indexing:', entity);
-    return ElasticSearch.index('entity', [ entity ]);
-  } else if (isResourceDoc(doc)) {
-    const resource = docToResource(doc);
-    console.log('Indexing:', resource);
-    return ElasticSearch.index('resource', [ resource ]);
-  } else {
-    throw new Error(`Doc ${doc['@id']} can not be brokered.`);
-  }
-}
+// async function broker(doc: Doc) {
+//   console.log('Indexing:', doc["@id"]);
+//   return ElasticSearch.index([ doc ]);
+//   // console.log(`Brokering ${doc['@id']}`);
+//   // if (isEntityDoc(doc)) {
+//   //   const entity = await docToEntity(doc);
+//   //   console.log('Indexing:', entity);
+//   //   return ElasticSearch.index([ entity ]);
+//   // } else if (isResourceDoc(doc)) {
+//   //   const resource = docToResource(doc);
+//   //   console.log('Indexing:', resource);
+//   //   return ElasticSearch.index([ resource ]);
+//   // } else {
+//   //   throw new Error(`Doc ${doc['@id']} can not be brokered.`);
+//   // }
+// }
 
 export default async function init({ name }) {
   const exists = await ElasticSearch.ensureIndex()
@@ -27,9 +29,21 @@ export default async function init({ name }) {
   const receive = async (operation: Operation<Doc>) => {
     console.log('Received operation:', operation);
     const { action, data: doc } = operation;
-    if (!(action === 'write') || !isOperableDoc(doc)) return;
+    if (action !== 'write') return;
+    const flattenedWithParents = await Helpers.flattenDocWithParents(doc);
+    const filtered = flattenedWithParents.filter(({ doc }) => {
+      return Helpers.isOperableDoc(doc);
+    });
 
-    return broker(doc);
+    return ElasticSearch.index(filtered);
+    // const compacted = await Doc.compact(doc, Context.context);
+    // const flattened = await Doc.flatten(compacted, Context.context);
+    //
+    // await Promise.all(flattened.map(async (doc) => {
+    //   if (!Helpers.isOperableDoc(doc)) return;
+    //   // console.log('Indexing:', doc);
+    //   return ElasticSearch.index([ doc ]);
+    // }));
   }
 
   return await Broker({

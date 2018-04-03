@@ -1,11 +1,12 @@
 declare const _default: {
+    _parent: {
+        type: string;
+    };
     properties: {
-        ac_name: {
+        "about": {
             type: string;
-            analyzer: string;
-            search_analyzer: string;
         };
-        count: {
+        score: {
             type: string;
         };
     };

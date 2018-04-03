@@ -1,14 +1,14 @@
 import elasticsearch = require('elasticsearch');
 
+import { Doc } from 'feedbackfruits-knowledge-engine';
+
 import * as Config from './config';
+import * as Helpers from './helpers';
 
 const {
   ELASTICSEARCH_ADDRESS,
   ELASTICSEARCH_INDEX_NAME,
 } = Config;
-
-import { Entity } from './entity';
-import { Resource } from './resource';
 
 import mapping from './mapping';
 
@@ -23,6 +23,7 @@ export async function ensureIndex() {
 export function createIndex() {
   console.log(`Creating index...`);
   return new Promise((resolve, reject) => {
+    // console.log('Sending mapping:', mapping);
     client.indices.create({ index: ELASTICSEARCH_INDEX_NAME, body: mapping }, (res, data) => {
       if ('error' in data) return reject(data.error);
       console.log(`Index created.`);
@@ -41,16 +42,26 @@ export function indexExists() {
 }
 
 let i = 0;
-export function index(type: string, docs: Array<Entity | Resource>): Promise<void> {
+export function index(docs: Array<{ doc: Doc, parent: string | null }>): Promise<void> {
   if (docs.length === 0) return Promise.resolve();
   console.log(`Indexing: ${i++}, docs length ${docs.length}.`);
 
   return new Promise((resolve, reject) => {
       client.bulk({
-        body: docs.map(doc => {
-          let { id } = doc;
+        body: docs.map(({ doc, parent }) => {
+          const id = doc["@id"];
+          const type = Helpers.typeFor([].concat(doc["@type"]));
+          // const parent = Helpers.parentForType(type);
+          console.log(`Indexing ${type} ${id} <-- ${parent}`);
           return [
-            { index: { _index: ELASTICSEARCH_INDEX_NAME, _type: type, _id: id } },
+            {
+              index: {
+                _index: ELASTICSEARCH_INDEX_NAME,
+                _id: id,
+                _type: type,
+                ...(parent ? { parent } : {})
+              }
+            },
             doc
           ];
         }).reduce((memo, x) => memo.concat(x), [])

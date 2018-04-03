@@ -1,4 +1,7 @@
 export default {
+  // _parent: {
+  //   type: "Entity"
+  // },
   properties: {
      id: {
         type: "keyword",
@@ -6,14 +9,28 @@ export default {
      type: {
         type: "keyword",
      },
-     sourceOrganization: {
+
+     name: {
+        type: "text",
+     },
+     description: {
+        type: "text",
+     },
+     "image": {
+       type: "keyword"
+     },
+
+     "sourceOrganization": {
         type: "keyword",
      },
-     license: {
+     "license": {
         type: "keyword",
      },
-     "entities.id": {
+     "tags": {
         type: "keyword",
+     },
+     "annotations": {
+       type: "keyword"
      }
   }
 };
