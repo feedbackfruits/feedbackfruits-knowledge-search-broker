@@ -6,13 +6,25 @@ declare const _default: {
         type: {
             type: string;
         };
-        sourceOrganization: {
+        name: {
             type: string;
         };
-        license: {
+        description: {
             type: string;
         };
-        "entities.id": {
+        "image": {
+            type: string;
+        };
+        "sourceOrganization": {
+            type: string;
+        };
+        "license": {
+            type: string;
+        };
+        "tags": {
+            type: string;
+        };
+        "annotations": {
             type: string;
         };
     };

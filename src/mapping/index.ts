@@ -1,5 +1,7 @@
-import entity from './entity';
-import resource from './resource';
+import Entity from './entity';
+import Resource from './resource';
+import Tag from './tag';
+import Annotation from './annotation';
 
 export default {
    "settings": {
@@ -24,7 +26,9 @@ export default {
       }
    },
    "mappings": {
-      entity,
-      resource
+      Entity,
+      Resource,
+      Tag,
+      Annotation,
    }
 };

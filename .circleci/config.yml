@@ -20,12 +20,12 @@ jobs:
           KAFKA_AUTO_CREATE_TOPICS_ENABLE: false
           KAFKA_ZOOKEEPER_CONNECT: localhost:2181
           KAFKA_CREATE_TOPICS: "test_updates:1:1,test_update_requests:1:1"
-      - image: feedbackfruits/feedbackfruits-knowledge-graph:latest
-        auth:
-          username: $DOCKERHUB_USER
-          password: $DOCKERHUB_PASSWORD
-        environment:
-          CAYLEY_ENV: test
+      # - image: feedbackfruits/feedbackfruits-knowledge-graph:latest
+      #   auth:
+      #     username: $DOCKERHUB_USER
+      #     password: $DOCKERHUB_PASSWORD
+      #   environment:
+      #     CAYLEY_ENV: test
 
       - image: elasticsearch:5-alpine
         environment:
@@ -34,19 +34,19 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-          - node_modules-{{ checksum "package.json" }}-{{ checksum "package-lock.json" }}
+          - node_modules-{{ checksum "package.json" }}-{{ checksum "yarn.lock" }}
 
       - run:
           name: Install dependencies
-          command: npm install
+          command: yarn
 
       - save_cache:
           paths:
             - node_modules
-          key: node_modules-{{ checksum "package.json" }}-{{ checksum "package-lock.json" }}
+          key: node_modules-{{ checksum "package.json" }}-{{ checksum "yarn.lock" }}
 
-      - run: npm test
-      - run: npm run coverage
+      - run: yarn test
+      - run: yarn run coverage
 
       - store_artifacts:
           path: coverage

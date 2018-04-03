@@ -18,9 +18,9 @@ declare const _default: {
         };
     };
     "mappings": {
-        entity: {
+        Entity: {
             properties: {
-                name: {
+                ac_name: {
                     type: string;
                     analyzer: string;
                     search_analyzer: string;
@@ -30,7 +30,7 @@ declare const _default: {
                 };
             };
         };
-        resource: {
+        Resource: {
             properties: {
                 id: {
                     type: string;
@@ -38,15 +38,62 @@ declare const _default: {
                 type: {
                     type: string;
                 };
-                sourceOrganization: {
+                name: {
                     type: string;
                 };
-                license: {
+                description: {
                     type: string;
                 };
-                "entities.id": {
+                "image": {
                     type: string;
                 };
+                "sourceOrganization": {
+                    type: string;
+                };
+                "license": {
+                    type: string;
+                };
+                "tags": {
+                    type: string;
+                };
+                "annotations": {
+                    type: string;
+                };
+            };
+        };
+        Tag: {
+            _parent: {
+                type: string;
+            };
+            properties: {
+                "about": {
+                    type: string;
+                };
+                score: {
+                    type: string;
+                };
+            };
+        };
+        Annotation: {
+            properties: {
+                "startPosition": {
+                    type: string;
+                };
+                "confidence": {
+                    type: string;
+                };
+                "detectedAs": {
+                    type: string;
+                };
+                "about": {
+                    type: string;
+                };
+                score: {
+                    type: string;
+                };
+            };
+            _parent: {
+                type: string;
             };
         };
     };
