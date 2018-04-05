@@ -3,19 +3,11 @@ import { Doc, Helpers, Context } from 'feedbackfruits-knowledge-engine';
 import { Entity, getCount } from './entity';
 import { Resource } from './resource';
 
-import mapping from './mapping';
+import indices from './indices';
 
-// export function isEntityDoc(doc: Doc): boolean {
-//   return (doc[Helpers.decodeIRI(Context.iris.rdf.type)].indexOf(Context.iris.$.Entity) > -1);
+// export function isOperableDoc(doc: Doc): boolean {
+//   return typeFor([].concat(doc["@type"])) != null;
 // }
-//
-// export function isResourceDoc(doc: Doc): boolean {
-//   return (doc[Helpers.decodeIRI(Context.iris.rdf.type)].indexOf(Context.iris.$.Resource) > -1);
-// }
-
-export function isOperableDoc(doc: Doc): boolean {
-  return typeFor([].concat(doc["@type"])) != null;
-}
 
 export function typeFor(types: string[]): string {
   const typeMap = types.reduce((memo, type) => ({ ...memo, [type]: true }), {});
@@ -68,7 +60,7 @@ export async function flattenDocWithParents(original: Doc): Promise<{ doc: Doc, 
   const flattened = await Doc.flatten(compacted, Context.context);
 
   const parentByDoc = flattened.reduce((memo, doc) => {
-    if (!isOperableDoc(doc)) return memo;
+    // if (!isOperableDoc(doc)) return memo;
     const id = doc["@id"];
     const parentId = parentFor(compacted, id);
 
@@ -87,27 +79,15 @@ export async function flattenDocWithParents(original: Doc): Promise<{ doc: Doc, 
   })
 }
 
-export function parentForType(type: string): string {
-  return (`${type}` in mapping.mappings && "_parent" in mapping.mappings[type]) ? mapping.mappings[type]._parent.type : null;
+export function parentTypeForType(index: string, type: string): string {
+  return (`${type}` in indices[index].mappings && "_parent" in indices[index].mappings[type]) ? indices[index].mappings[type]._parent.type : null;
 }
 
-export async function docToEntity(doc: Doc): Promise<Entity> {
-  const count = await getCount(doc);
-  return {
-    id: doc['@id'],
-    name: doc[Helpers.decodeIRI(Context.iris.schema.name)],
-    count
-  };
-}
-
-export function docToResource(doc: Doc): Resource {
-  return {
-    id: doc['@id'],
-    type: [].concat(doc[Helpers.decodeIRI(Context.iris.rdf.type)]).map(Helpers.decodeIRI),
-    name: [].concat(doc[Helpers.decodeIRI(Context.iris.schema.name)])[0],
-    description: [].concat(doc[Helpers.decodeIRI(Context.iris.schema.description)])[0],
-    license: [].concat(doc[Helpers.decodeIRI(Context.iris.schema.license)])[0],
-    sourceOrganization: [].concat(doc[Helpers.decodeIRI(Context.iris.schema.sourceOrganization)])[0],
-    entities: doc[Helpers.decodeIRI(Context.iris.schema.about)].map(Helpers.decodeIRI).map((id: string) => ({ id }))
-  };
-}
+// export async function docToEntity(doc: Doc): Promise<Entity> {
+//   const count = await getCount(doc);
+//   return {
+//     "@id": doc['@id'],
+//     name: doc['name'],
+//     count
+//   };
+// }

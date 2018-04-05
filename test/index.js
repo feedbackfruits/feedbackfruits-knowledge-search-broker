@@ -29,12 +29,13 @@ test('it indexes compacted flattened documents with particular types', async (t)
     await send({ action: 'write', key: resource['@id'], data: resource });
 
     let timeoutPromise = new Promise((resolve, reject) => {
-      setTimeout(() => resolve(), 3000);
+      setTimeout(() => resolve(), 10000);
     });
 
     await timeoutPromise;
-    const resourcePromise = await fetch(`${ELASTICSEARCH_ADDRESS}/${ELASTICSEARCH_INDEX_NAME}/_search?size=100`);
+    const resourcePromise = await fetch(`${ELASTICSEARCH_ADDRESS}/${ELASTICSEARCH_INDEX_NAME}_resources/_search?size=100`);
     const resources = await resourcePromise.json();
+    console.log('Result data:', resources);
 
     const result = resources.hits.hits.map(hit => hit._source);
     const flattened = await Doc.flatten(resource, Context.context);
@@ -47,8 +48,6 @@ test('it indexes compacted flattened documents with particular types', async (t)
 
     const sortFn = (a, b) => a["@id"].localeCompare(b["@id"]);
 
-    console.log('Result data:', resources);
-
     t.deepEqual(result.sort(sortFn), expected.sort(sortFn));
 
     // await send({ action: 'write', key: entityDoc['@id'], data: entityDoc });
@@ -58,7 +57,7 @@ test('it indexes compacted flattened documents with particular types', async (t)
     // });
     //
     // await timeoutPromise2;
-    // const entityPromise = await fetch(`${ELASTICSEARCH_ADDRESS}/${ELASTICSEARCH_INDEX_NAME}/entity/_search`);
+    // const entityPromise = await fetch(`${ELASTICSEARCH_ADDRESS}/${ELASTICSEARCH_INDEX_NAME}_resources/entity/_search`);
     // const entities = await entityPromise.json();
     // console.log('Result data:', entities);
     // return t.deepEqual(entities.hits.hits[0]._source, {
@@ -86,7 +85,7 @@ test('it can be queried by tag(s) using parent-child logic', async (t) => {
     await send({ action: 'write', key: resource['@id'], data: resource });
 
     let timeoutPromise = new Promise((resolve, reject) => {
-      setTimeout(() => resolve(), 3000);
+      setTimeout(() => resolve(), 10000);
     });
 
     const tag = resource.tag[0];
@@ -104,11 +103,12 @@ test('it can be queried by tag(s) using parent-child logic', async (t) => {
     };
 
     await timeoutPromise;
-    const resourcePromise = await fetch(`${ELASTICSEARCH_ADDRESS}/${ELASTICSEARCH_INDEX_NAME}/Resource/_search`, {
+    const resourcePromise = await fetch(`${ELASTICSEARCH_ADDRESS}/${ELASTICSEARCH_INDEX_NAME}_resources/Resource/_search`, {
       method: 'POST',
       body: JSON.stringify(query)
     });
     const resources = await resourcePromise.json();
+    console.log('Result data:', resources);
 
     const result = resources.hits.hits.map(hit => hit._source);
     const flattened = await Doc.flatten(resource, Context.context);
@@ -117,8 +117,6 @@ test('it can be queried by tag(s) using parent-child logic', async (t) => {
     const expected = [ flattenedResourceDoc ];
 
     const sortFn = (a, b) => a["@id"].localeCompare(b["@id"]);
-
-    console.log('Result data:', resources);
 
     return t.deepEqual(result.sort(sortFn), expected.sort(sortFn));
   } catch(e) {
@@ -143,7 +141,7 @@ test('it can be queried by annotation(s) using parent-child logic', async (t) =>
     await send({ action: 'write', key: resource['@id'], data: resource });
 
     let timeoutPromise = new Promise((resolve, reject) => {
-      setTimeout(() => resolve(), 3000);
+      setTimeout(() => resolve(), 10000);
     });
 
     const annotation = resource.annotation[0];
@@ -161,7 +159,7 @@ test('it can be queried by annotation(s) using parent-child logic', async (t) =>
     };
 
     await timeoutPromise;
-    const resourcePromise = await fetch(`${ELASTICSEARCH_ADDRESS}/${ELASTICSEARCH_INDEX_NAME}/Resource/_search`, {
+    const resourcePromise = await fetch(`${ELASTICSEARCH_ADDRESS}/${ELASTICSEARCH_INDEX_NAME}_resources/Resource/_search`, {
       method: 'POST',
       body: JSON.stringify(query)
     });

@@ -1,9 +1,6 @@
 export default {
    properties: {
-      // _parent: {
-      //   type: "Entity"
-      // },
-      ac_name: {
+      name: {
          type: "text",
          analyzer: "edge_ngram_analyzer",
          search_analyzer: "english"
