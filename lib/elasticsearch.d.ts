@@ -1,8 +1,9 @@
 import { Doc } from 'feedbackfruits-knowledge-engine';
-export declare function ensureIndex(): Promise<boolean>;
-export declare function createIndex(): Promise<{}>;
-export declare function indexExists(): Promise<{}>;
+export declare function ensureIndices(): Promise<boolean>;
+export declare function createIndices(): Promise<{}[]>;
+export declare function indicesExist(): Promise<{}>;
 export declare function index(docs: Array<{
+    index: string;
     doc: Doc;
     parent: string | null;
 }>): Promise<void>;

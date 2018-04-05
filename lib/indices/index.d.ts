@@ -21,7 +21,7 @@ declare const _default: {
         "mappings": {
             Entity: {
                 properties: {
-                    ac_name: {
+                    name: {
                         type: string;
                         analyzer: string;
                         search_analyzer: string;
@@ -32,39 +32,13 @@ declare const _default: {
                 };
             };
         };
+        frame: {
+            "@type": string;
+        };
+        isOperableDoc: (doc: object) => boolean;
     };
     resources: {
-        "settings": {
-            "analysis": {
-                "filter": {
-                    "edge_ngram_filter": {
-                        "type": string;
-                        "min_gram": number;
-                        "max_gram": number;
-                    };
-                };
-                "analyzer": {
-                    "edge_ngram_analyzer": {
-                        "type": string;
-                        "tokenizer": string;
-                        "filter": string[];
-                    };
-                };
-            };
-        };
         "mappings": {
-            Entity: {
-                properties: {
-                    ac_name: {
-                        type: string;
-                        analyzer: string;
-                        search_analyzer: string;
-                    };
-                    count: {
-                        type: string;
-                    };
-                };
-            };
             Resource: {
                 properties: {
                     id: {
@@ -132,6 +106,10 @@ declare const _default: {
                 };
             };
         };
+        frame: {
+            "@type": string;
+        };
+        isOperableDoc: (doc: object) => boolean;
     };
 };
 export default _default;
