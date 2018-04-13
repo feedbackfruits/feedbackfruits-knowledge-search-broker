@@ -1879,9 +1879,9 @@ feedbackfruits-knowledge-context@feedbackfruits/feedbackfruits-knowledge-context
     tslint "^5.5.0"
     typescript "^2.4.1"
 
-feedbackfruits-knowledge-engine@feedbackfruits/feedbackfruits-knowledge-engine#~1.2.0:
-  version "1.2.0"
-  resolved "https://codeload.github.com/feedbackfruits/feedbackfruits-knowledge-engine/tar.gz/231ca6b98a9ceeda6090ca3d338e65dfac3c78a9"
+"feedbackfruits-knowledge-engine@github:feedbackfruits/feedbackfruits-knowledge-engine#^1.2.1":
+  version "1.2.1"
+  resolved "https://codeload.github.com/feedbackfruits/feedbackfruits-knowledge-engine/tar.gz/25dc9408d0decf29fb0a06579d1b0313e2aa0b45"
   dependencies:
     "@types/n3" "^0.0.3"
     "@types/node" "^8.0.14"
@@ -3150,7 +3150,7 @@ mem@^1.1.0:
   dependencies:
     mimic-fn "^1.0.0"
 
-memux@^0.4.2, "memux@github:knowledge-express/memux#~0.4.1":
+memux@^0.4.2, "memux@github:knowledge-express/memux#~0.4.2":
   version "0.4.2"
   resolved "https://codeload.github.com/knowledge-express/memux/tar.gz/0fb2c86a18db5d2374d0a91d8f1264348772d0f4"
   dependencies:
