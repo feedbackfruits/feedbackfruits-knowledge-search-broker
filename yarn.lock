@@ -1879,9 +1879,9 @@ feedbackfruits-knowledge-context@feedbackfruits/feedbackfruits-knowledge-context
     tslint "^5.5.0"
     typescript "^2.4.1"
 
-"feedbackfruits-knowledge-engine@github:feedbackfruits/feedbackfruits-knowledge-engine#^1.2.1":
-  version "1.2.1"
-  resolved "https://codeload.github.com/feedbackfruits/feedbackfruits-knowledge-engine/tar.gz/25dc9408d0decf29fb0a06579d1b0313e2aa0b45"
+"feedbackfruits-knowledge-engine@github:feedbackfruits/feedbackfruits-knowledge-engine#^1.3.3":
+  version "1.3.3"
+  resolved "https://codeload.github.com/feedbackfruits/feedbackfruits-knowledge-engine/tar.gz/c6a74dd2f36320d98f9083bf58b00083aeb998e8"
   dependencies:
     "@types/n3" "^0.0.3"
     "@types/node" "^8.0.14"
@@ -1889,8 +1889,10 @@ feedbackfruits-knowledge-context@feedbackfruits/feedbackfruits-knowledge-context
     feedbackfruits-knowledge-context feedbackfruits/feedbackfruits-knowledge-context#^1.1.4
     isuri "^2.0.3"
     jsonld "^0.5.18"
-    memux "^0.4.2"
+    memux "^0.4.5"
     n3 "^0.11.2"
+    rdf-canonize "^0.2.3"
+    rdf-nx-parser "^1.0.3"
     tslint "^5.5.0"
     typescript "^2.4.1"
 
@@ -3150,7 +3152,19 @@ mem@^1.1.0:
   dependencies:
     mimic-fn "^1.0.0"
 
-memux@^0.4.2, "memux@github:knowledge-express/memux#~0.4.2":
+memux@^0.4.5:
+  version "0.4.5"
+  resolved "https://registry.yarnpkg.com/memux/-/memux-0.4.5.tgz#af8547c3480cc61eb0f667cb25d381c79a99a949"
+  dependencies:
+    "@reactivex/rxjs" "^5.4.2"
+    "@types/node" "^9.4.0"
+    "@types/node-uuid" "^0.0.28"
+    no-kafka "^3.2.0"
+    node-uuid "^1.4.8"
+    p-queue "^1.1.0"
+    typescript "^2.4.1"
+
+"memux@github:knowledge-express/memux#~0.4.2":
   version "0.4.2"
   resolved "https://codeload.github.com/knowledge-express/memux/tar.gz/0fb2c86a18db5d2374d0a91d8f1264348772d0f4"
   dependencies:
@@ -3980,7 +3994,7 @@ rc@^1.0.1, rc@^1.1.6, rc@^1.1.7:
     minimist "^1.2.0"
     strip-json-comments "~2.0.1"
 
-rdf-canonize@^0.2.1:
+rdf-canonize@^0.2.1, rdf-canonize@^0.2.3:
   version "0.2.3"
   resolved "https://registry.yarnpkg.com/rdf-canonize/-/rdf-canonize-0.2.3.tgz#c89f3cd5823bb430e0060d714125ccc8febdf6c9"
   dependencies:
@@ -3988,6 +4002,10 @@ rdf-canonize@^0.2.1:
     nan "^2.7.0"
     node-forge "^0.7.1"
     semver "^5.4.1"
+
+rdf-nx-parser@^1.0.3:
+  version "1.0.3"
+  resolved "https://registry.yarnpkg.com/rdf-nx-parser/-/rdf-nx-parser-1.0.3.tgz#a9daf6de4d6d87f193d3296e731f4954854de727"
 
 read-pkg-up@^1.0.1:
   version "1.0.1"
