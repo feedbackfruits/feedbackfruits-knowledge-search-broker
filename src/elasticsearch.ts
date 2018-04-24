@@ -1,6 +1,7 @@
 import elasticsearch = require('elasticsearch');
 
 import { Doc } from 'feedbackfruits-knowledge-engine';
+import * as DataLoader from 'dataloader';
 
 import * as Config from './config';
 import * as Helpers from './helpers';
@@ -50,12 +51,8 @@ export async function indicesExist() {
   }))).reduce((memo, exists) => memo && exists, true);
 }
 
-let i = 0;
-export function index(docs: Array<{ index: string, doc: Doc, parent: string | null }>): Promise<void> {
-  if (docs.length === 0) return Promise.resolve();
-  console.log(`Indexing: ${i++}, docs length ${docs.length}.`);
-
-  return new Promise((resolve, reject) => {
+export const loader = new DataLoader<any, any>(async (docs: any) => {
+  return new Promise<any[]>((resolve, reject) => {
       client.bulk({
         body: docs.map(({ index: indexName, doc, parent }) => {
           const id = doc["@id"];
@@ -83,9 +80,19 @@ export function index(docs: Array<{ index: string, doc: Doc, parent: string | nu
           return reject(new Error(JSON.stringify(res)));
         }
         console.log('Indexing succesfull!');
-        return resolve(res);
+        return resolve(docs);
       });
   });
+}, {
+  maxBatchSize: Config.INDEX_BATCH_SIZE
+});
+
+let i = 0;
+export async function index(docs: Array<{ index: string, doc: Doc, parent: string | null }>): Promise<void> {
+  if (docs.length === 0) return Promise.resolve();
+  console.log(`Indexing: ${i++}, docs length ${docs.length}.`);
+  await docs.map(doc => loader.load(doc));
+  return;
 }
 
 export const client = new elasticsearch.Client({

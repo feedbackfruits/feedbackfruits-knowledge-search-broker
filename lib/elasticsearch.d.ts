@@ -2,6 +2,7 @@ import { Doc } from 'feedbackfruits-knowledge-engine';
 export declare function ensureIndices(): Promise<boolean>;
 export declare function createIndices(): Promise<{}[]>;
 export declare function indicesExist(): Promise<{}>;
+export declare const loader: any;
 export declare function index(docs: Array<{
     index: string;
     doc: Doc;

@@ -10,6 +10,8 @@ const {
   ELASTICSEARCH_INDEX_NAME = 'knowledge',
 } = process.env;
 
+const INDEX_BATCH_SIZE = parseInt(process.env.INDEX_BATCH_SIZE ? process.env.INDEX_BATCH_SIZE : '100');
+
 export {
   NAME,
   ELASTICSEARCH_ADDRESS,
@@ -18,4 +20,5 @@ export {
   KAFKA_ADDRESS,
   INPUT_TOPIC,
   ELASTICSEARCH_INDEX_NAME,
+  INDEX_BATCH_SIZE
 };
