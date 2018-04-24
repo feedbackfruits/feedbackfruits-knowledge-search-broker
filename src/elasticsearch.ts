@@ -66,20 +66,21 @@ export function index(docs: Array<{ index: string, doc: Doc, parent: string | nu
           console.log(`Indexing to ${indexName} as ${name} ${type} ${id} <-- ${parent} of type ${parentType}`);
           return [
             {
-              index: {
+              update: {
                 _index: name,
                 _id: id,
                 _type: type,
+                _retry_on_conflict: 3,
                 ...((parentType && parent) ? { parent } : {})
               }
             },
-            doc
+            { doc, doc_as_upsert: true }
           ];
         }).reduce((memo, x) => memo.concat(x), [])
       }, (err, res) => {
         if (err) return reject(err);
         if (res['errors'] === true) {
-          return reject(new Error(JSON.stringify(res.items.map(item => item.index.error).filter(x => x).map(x => x.reason))));
+          return reject(new Error(JSON.stringify(res)));
         }
         console.log('Indexing succesfull!');
         return resolve(res);
