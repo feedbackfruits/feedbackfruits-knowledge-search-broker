@@ -91,7 +91,7 @@ let i = 0;
 export async function index(docs: Array<{ index: string, doc: Doc, parent: string | null }>): Promise<void> {
   if (docs.length === 0) return Promise.resolve();
   console.log(`Indexing: ${i++}, docs length ${docs.length}.`);
-  await docs.map(doc => loader.load(doc));
+  await Promise.all(docs.map(doc => loader.load(doc)));
   return;
 }
 
