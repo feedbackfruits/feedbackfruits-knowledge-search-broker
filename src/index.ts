@@ -6,6 +6,17 @@ import * as Helpers from './helpers';
 import * as ElasticSearch from './elasticsearch';
 import indices from './indices';
 
+function parentForDoc(doc: Doc) {
+  const types = [].concat(doc["@type"]);
+  const typeMap = types.reduce((memo, type) => ({ ...memo, [type]: true }), {});
+
+  if ('Tag' in typeMap || 'Annotation' in typeMap) {
+    return doc["tagOf"];
+  }
+
+  return null;
+}
+
 export default async function init({ name }) {
   const exists = await ElasticSearch.ensureIndices()
   if (!exists) await ElasticSearch.createIndices();
@@ -17,19 +28,28 @@ export default async function init({ name }) {
 
     await Promise.all(Object.keys(indices).map(async indexName => {
       const index = indices[indexName];
-      const frame = { "@context": Context.context, ...index.frame };
-      // The framing serves two purposes: 1) check if doc is usable for index and 2) turn graph into list of trees
-      const framed = await Doc.frame([ doc ], frame);
-      if (framed.length === 0) return; // Empty output ==> input 'rejected' by frame, not usable for this index
+      const frames = [].concat(index.frames || index.frame || []);
 
-      // Process all the trees
-      return Promise.all(framed.map(async tree => {
-        const flattenedWithParents = await Helpers.flattenDocWithParents(tree);
-        const filtered = flattenedWithParents.filter(({ doc }) => {
-          return index.isOperableDoc(doc);
-        });
+      await Promise.all(frames.map(async (_frame) => {
+        const frame = { "@context": Context.context, ..._frame };
+        // The framing serves two purposes: 1) check if doc is usable for index and 2) turn graph into list of trees
+        const framed = await Doc.frame([ doc ], frame);
+        if (framed.length === 0) return; // Empty output ==> input 'rejected' by frame, not usable for this index
 
-        return ElasticSearch.index(filtered.map(x => ({ ...x, index: indexName })));
+        // Process all the trees
+        return Promise.all(framed.map(async tree => {
+          const compacted = await Doc.compact(tree, Context.context);
+          // const flattenedWithParents = await Helpers.flattenDocWithParents(tree);
+          if (!index.isOperableDoc(compacted)) return;
+          const parent = parentForDoc(compacted);
+          console.log(`Proceeding with index:`, compacted["@id"], "with parent", parent)
+          return ElasticSearch.index([ { doc: compacted, parent, index: indexName } ])
+          // const filtered = flattenedWithParents.filter(({ doc }) => {
+          //   return index.isOperableDoc(doc);
+          // });
+
+          // return ElasticSearch.index(filtered.map(x => ({ ...x, index: indexName })));
+        }));
       }));
     }));
 

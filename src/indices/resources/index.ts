@@ -21,8 +21,16 @@ export default {
       Tag,
       Annotation,
    },
-   frame: {
-     "@type": Context.iris.$.Resource
-   },
+   frames: [
+     {
+       "@type": Context.iris.$.Resource
+     },
+     {
+       "@type": Context.iris.$.Tag
+     },
+     {
+       "@type": Context.iris.$.Annotation
+     },
+  ],
    isOperableDoc
 };

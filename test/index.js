@@ -35,7 +35,7 @@ test('it indexes compacted flattened documents with particular types', async (t)
     await timeoutPromise;
     const resourcePromise = await fetch(`${ELASTICSEARCH_ADDRESS}/${ELASTICSEARCH_INDEX_NAME}_resources/_search?size=100`);
     const resources = await resourcePromise.json();
-    console.log('Result data:', resources);
+    console.log('Result data:', JSON.stringify(resources));
 
     const result = resources.hits.hits.map(hit => hit._source);
     const flattened = await Doc.flatten(resource, Context.context);
