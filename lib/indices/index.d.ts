@@ -106,9 +106,9 @@ declare const _default: {
                 };
             };
         };
-        frame: {
+        frames: {
             "@type": string;
-        };
+        }[];
         isOperableDoc: (doc: object) => boolean;
     };
 };
