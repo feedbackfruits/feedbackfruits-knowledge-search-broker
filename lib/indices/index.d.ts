@@ -53,19 +53,22 @@ declare const _default: {
                     description: {
                         type: string;
                     };
-                    "image": {
+                    image: {
                         type: string;
                     };
-                    "sourceOrganization": {
+                    encoding: {
                         type: string;
                     };
-                    "license": {
+                    sourceOrganization: {
                         type: string;
                     };
-                    "tags": {
+                    license: {
                         type: string;
                     };
-                    "annotations": {
+                    tags: {
+                        type: string;
+                    };
+                    annotations: {
                         type: string;
                     };
                 };
