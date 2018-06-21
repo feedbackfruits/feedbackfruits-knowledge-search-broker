@@ -1,6 +1,6 @@
 {
     "compilerOptions": {
-        "target": "es2017",
+        "target": "es6",
         "module": "commonjs",
         "moduleResolution": "node",
         "isolatedModules": false,
@@ -15,12 +15,7 @@
         "noLib": false,
         "preserveConstEnums": true,
         "suppressImplicitAnyIndexErrors": true,
-        "outDir": "lib",
-        "lib": [
-            "es2017",
-            "esnext.asynciterable",
-            "dom"
-        ]
+        "outDir": "lib"
     },
     "filesGlob": [
       "src/**/*.ts"
