@@ -5,7 +5,7 @@ import memux from 'memux';
 import fetch from 'node-fetch';
 import init from '../lib';
 import { Doc, Context } from 'feedbackfruits-knowledge-engine';
-import { NAME, KAFKA_ADDRESS, OUTPUT_TOPIC, INPUT_TOPIC, ELASTICSEARCH_ADDRESS, ELASTICSEARCH_INDEX_NAME } from '../lib/config';
+import { NAME, KAFKA_ADDRESS, OUTPUT_TOPIC, INPUT_TOPIC, ELASTICSEARCH_ADDRESS, ELASTICSEARCH_INDEX_NAME, VERSION } from '../lib/config';
 
 const resource = require('./support/resource');
 
@@ -33,7 +33,7 @@ test('it indexes compacted flattened documents with particular types', async (t)
     });
 
     await timeoutPromise;
-    const resourcePromise = await fetch(`${ELASTICSEARCH_ADDRESS}/${ELASTICSEARCH_INDEX_NAME}_resources/_search?size=100`);
+    const resourcePromise = await fetch(`${ELASTICSEARCH_ADDRESS}/${ELASTICSEARCH_INDEX_NAME}_resources-${VERSION}/_search?size=100`);
     const resources = await resourcePromise.json();
     console.log('Result data:', JSON.stringify(resources));
 
@@ -57,7 +57,7 @@ test('it indexes compacted flattened documents with particular types', async (t)
     // });
     //
     // await timeoutPromise2;
-    // const entityPromise = await fetch(`${ELASTICSEARCH_ADDRESS}/${ELASTICSEARCH_INDEX_NAME}_resources/entity/_search`);
+    // const entityPromise = await fetch(`${ELASTICSEARCH_ADDRESS}/${ELASTICSEARCH_INDEX_NAME}_resources-${VERSION}/entity/_search`);
     // const entities = await entityPromise.json();
     // console.log('Result data:', entities);
     // return t.deepEqual(entities.hits.hits[0]._source, {
@@ -103,7 +103,7 @@ test('it can be queried by tag(s) using parent-child logic', async (t) => {
     };
 
     await timeoutPromise;
-    const resourcePromise = await fetch(`${ELASTICSEARCH_ADDRESS}/${ELASTICSEARCH_INDEX_NAME}_resources/Resource/_search`, {
+    const resourcePromise = await fetch(`${ELASTICSEARCH_ADDRESS}/${ELASTICSEARCH_INDEX_NAME}_resources-${VERSION}/Resource/_search`, {
       method: 'POST',
       body: JSON.stringify(query)
     });
@@ -159,7 +159,7 @@ test('it can be queried by annotation(s) using parent-child logic', async (t) =>
     };
 
     await timeoutPromise;
-    const resourcePromise = await fetch(`${ELASTICSEARCH_ADDRESS}/${ELASTICSEARCH_INDEX_NAME}_resources/Resource/_search`, {
+    const resourcePromise = await fetch(`${ELASTICSEARCH_ADDRESS}/${ELASTICSEARCH_INDEX_NAME}_resources-${VERSION}/Resource/_search`, {
       method: 'POST',
       body: JSON.stringify(query)
     });
