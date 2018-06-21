@@ -14,19 +14,10 @@ const {
 import indices from './indices';
 
 let awaitingCreation = null;
-let awaitingUpdate = null;
 export async function ensureIndices() {
   const exists = await indicesExist();
   if (!exists && !awaitingCreation) awaitingCreation = createIndices();
   await awaitingCreation;
-
-  console.log('Indices exists. Updating mappings...');
-
-  let res;
-  if (!awaitingUpdate) awaitingUpdate = updateMapping();
-  res = await awaitingUpdate;
-  console.log('Mapping updated:', res);
-
   return true;
 }
 
@@ -58,23 +49,6 @@ export async function indicesExist() {
       });
     })
   }))).reduce((memo, exists) => memo && exists, true);
-}
-
-export async function updateMapping() {
-  return (await Promise.all(Object.keys(indices).reduce((memo, indexName) => {
-    const name = `${ELASTICSEARCH_INDEX_NAME}_${indexName}`;
-    const index = indices[indexName];
-
-    return [ ...memo, ...Object.entries(index.mappings).map(([ type, properties ]) => {
-      return new Promise((resolve, reject) => {
-        client.indices.putMapping({ index: name, type, body: properties }, (err, res) => {
-          if (err) throw err;
-          return resolve(res);
-        });
-      });
-    }) ];
-
-  }, [])));
 }
 
 export const loader = new DataLoader<any, any>(async (docs: any) => {

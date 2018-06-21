@@ -51,7 +51,7 @@
     "p-queue": "^0.2.0",
     "p-throttle": "^1.1.0",
     "tslint": "^5.5.0",
-    "typescript": "^2.6.1"
+    "typescript": "^2.4.2"
   },
   "devDependencies": {
     "ava": "^0.20.0",
