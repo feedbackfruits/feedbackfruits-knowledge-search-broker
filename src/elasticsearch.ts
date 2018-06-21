@@ -9,6 +9,7 @@ import * as Helpers from './helpers';
 const {
   ELASTICSEARCH_ADDRESS,
   ELASTICSEARCH_INDEX_NAME,
+  VERSION,
 } = Config;
 
 import indices from './indices';
@@ -22,11 +23,15 @@ export async function ensureIndices() {
 
   console.log('Indices exists. Updating mappings...');
 
-  let res;
-  if (!awaitingUpdate) awaitingUpdate = updateMapping();
-  res = await awaitingUpdate;
-  console.log('Mapping updated:', res);
+  if (!exists) return true;
 
+  if (exists && !awaitingUpdate) {
+    awaitingUpdate = updateMapping();
+    const res = await awaitingUpdate;
+    console.log('Mapping updated:', res);
+  }
+
+  await awaitingUpdate;
   return true;
 }
 
@@ -35,7 +40,7 @@ export function createIndices() {
   return Promise.all(Object.keys(indices).map(indexName => {
     return new Promise((resolve, reject) => {
       // console.log('Sending mapping:', mapping);
-      const name = `${ELASTICSEARCH_INDEX_NAME}_${indexName}`;
+      const name = `${ELASTICSEARCH_INDEX_NAME}_${indexName}-${VERSION}`;
       const index = indices[indexName];
 
       client.indices.create({ index: name, body: index }, (res, data) => {
@@ -51,7 +56,7 @@ export function createIndices() {
 export async function indicesExist() {
   return (await Promise.all(Object.keys(indices).map(indexName => {
     return new Promise((resolve, reject) => {
-      const name = `${ELASTICSEARCH_INDEX_NAME}_${indexName}`;
+      const name = `${ELASTICSEARCH_INDEX_NAME}_${indexName}-${VERSION}`;
       client.indices.exists({ index: name }, (res, data) => {
         console.log(`Testing index existence for ${indexName} as ${name}:`, data);
         return resolve(data);
@@ -62,7 +67,7 @@ export async function indicesExist() {
 
 export async function updateMapping() {
   return (await Promise.all(Object.keys(indices).reduce((memo, indexName) => {
-    const name = `${ELASTICSEARCH_INDEX_NAME}_${indexName}`;
+    const name = `${ELASTICSEARCH_INDEX_NAME}_${indexName}-${VERSION}`;
     const index = indices[indexName];
 
     return [ ...memo, ...Object.entries(index.mappings).map(([ type, properties ]) => {
@@ -84,7 +89,7 @@ export const loader = new DataLoader<any, any>(async (docs: any) => {
           const id = doc["@id"];
           const type = Helpers.typeFor([].concat(doc["@type"]));
           const parentType = Helpers.parentTypeForType(indexName, type);
-          const name = `${ELASTICSEARCH_INDEX_NAME}_${indexName}`;
+          const name = `${ELASTICSEARCH_INDEX_NAME}_${indexName}-${VERSION}`;
 
           console.log(`Indexing to ${indexName} as ${name} ${type} ${id} <-- ${parent} of type ${parentType}`);
           return [

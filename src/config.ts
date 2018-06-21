@@ -1,3 +1,4 @@
+const Package = require('../package.json');
 require('dotenv').load({ silent: true });
 
 const {
@@ -8,6 +9,7 @@ const {
   INPUT_TOPIC = 'staging_updates',
   ELASTICSEARCH_ADDRESS = 'http://localhost:9200',
   ELASTICSEARCH_INDEX_NAME = 'knowledge',
+  VERSION = Package.version
 } = process.env;
 
 const INDEX_BATCH_SIZE = parseInt(process.env.INDEX_BATCH_SIZE ? process.env.INDEX_BATCH_SIZE : '100');
@@ -20,5 +22,6 @@ export {
   KAFKA_ADDRESS,
   INPUT_TOPIC,
   ELASTICSEARCH_INDEX_NAME,
-  INDEX_BATCH_SIZE
+  INDEX_BATCH_SIZE,
+  VERSION
 };
