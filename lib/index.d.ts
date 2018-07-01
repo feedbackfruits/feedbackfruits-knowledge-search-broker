@@ -1,3 +1,3 @@
-export default function init({name}: {
+export default function init({ name }: {
     name: any;
 }): Promise<void>;
