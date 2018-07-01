@@ -14,24 +14,26 @@ const {
 
 import indices from './indices';
 
-let awaitingCreation = null;
-let awaitingUpdate = null;
+let awaitingIndexCreation = null;
+let awaitingAliasExists = null;
+let awaitingAliasCreation = null;
 export async function ensureIndices() {
-  const exists = await indicesExist();
-  if (!exists && !awaitingCreation) awaitingCreation = createIndices();
-  await awaitingCreation;
+  if (!awaitingIndexCreation) awaitingIndexCreation = createIndices();
+  await awaitingIndexCreation;
 
-  console.log('Indices exists. Updating mappings...');
+  if (Config.ELASTICSEARCH_USE_ALIASES) {
+    if (!awaitingAliasExists) awaitingAliasExists = aliasesExist()
+    const aliasesExists = await awaitingAliasExists;
 
-  if (!exists) return true;
+    if (!aliasesExists) {
+      if (!awaitingAliasCreation) awaitingAliasCreation = createAliases();
+      await awaitingAliasCreation;
+      awaitingAliasExists = aliasesExist();
+    }
 
-  if (exists && !awaitingUpdate) {
-    awaitingUpdate = updateMapping();
-    const res = await awaitingUpdate;
-    console.log('Mapping updated:', res);
+    // Start reindex job here if no reindex job is running already
   }
 
-  await awaitingUpdate;
   return true;
 }
 
@@ -50,36 +52,65 @@ export function createIndices() {
       });
     });
   }));
-
 }
 
-export async function indicesExist() {
-  return (await Promise.all(Object.keys(indices).map(indexName => {
+export async function aliasesExist() {
+  const aliasNames = Object.keys(indices).map(indexName => `${ELASTICSEARCH_INDEX_NAME}_${indexName}`).join(',');
+  return new Promise((resolve, reject) => {
+    client.indices.existsAlias({ name: aliasNames }, (err, data) => {
+      if (err) return reject(err);
+      console.log(`Testing index existence for ${aliasNames}:`, data);
+      return resolve(data);
+    });
+  })
+}
+
+export function createAliases() {
+  console.log(`Creating aliases...`);
+  return Promise.all(Object.keys(indices).map(indexName => {
     return new Promise((resolve, reject) => {
+      // console.log('Sending mapping:', mapping);
+      const aliasName = `${ELASTICSEARCH_INDEX_NAME}_${indexName}`;
       const name = `${ELASTICSEARCH_INDEX_NAME}_${indexName}-${VERSION}`;
-      client.indices.exists({ index: name }, (res, data) => {
-        console.log(`Testing index existence for ${indexName} as ${name}:`, data);
+
+      client.indices.putAlias({ name: aliasName, index: name }, (err, data) => {
+        if (err) return reject(err);
+        console.log(`Alias ${aliasName} created pointing to ${name}.`);
         return resolve(data);
       });
-    })
-  }))).reduce((memo, exists) => memo && exists, true);
+    });
+  }));
 }
 
-export async function updateMapping() {
-  return (await Promise.all(Object.keys(indices).reduce((memo, indexName) => {
-    const name = `${ELASTICSEARCH_INDEX_NAME}_${indexName}-${VERSION}`;
-    const index = indices[indexName];
+export async function reindexFromAlias() {
+  return Promise.all(Object.keys(indices).map(async indexName => {
+    const task = await new Promise((resolve, reject) => {
+      const aliasName = `${ELASTICSEARCH_INDEX_NAME}_${indexName}`;
+      const name = `${ELASTICSEARCH_INDEX_NAME}_${indexName}-${VERSION}`;
+      const params = {
+        waitForCompletion: false, // Run task in the background
+        refresh: true, // Refresh index once done
+        body: {
+          conflicts: "proceed", // Don't break the job if one document breaks on reindexing
+          op_type: "create", // The reindexed data is stale, so no need to update anything, just creating missing data is fine
+          version_type: "internal", // Don't care about the version of the stale doc
+          source: {
+            index: aliasName
+          },
+          destination: {
+            index: name
+          }
+        }
+      };
 
-    return [ ...memo, ...Object.entries(index.mappings).map(([ type, properties ]) => {
-      return new Promise((resolve, reject) => {
-        client.indices.putMapping({ index: name, type, body: properties }, (err, res) => {
-          if (err) throw err;
-          return resolve(res);
-        });
+      client.reindex(params, (err, res) => {
+        if (err) return reject(err);
+        return resolve(res);
       });
-    }) ];
+    });
 
-  }, [])));
+    return task;
+  }));
 }
 
 export const loader = new DataLoader<any, any>(async (docs: any) => {
