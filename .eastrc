@@ -1,0 +1,9 @@
+const Config = require('./lib/config');
+const migrationsIndex = ".migrations-" + Config.NODE_ENV;
+
+module.exports = {
+  "adapter": "east-elasticsearch",
+  "url": Config.ELASTICSEARCH_ADDRESS,
+  "elasticSearchApiVersion": "5.x",
+  "migrationsIndex": migrationsIndex
+};

@@ -14,28 +14,28 @@ const {
 
 import indices from './indices';
 
-let awaitingIndexCreation = null;
-let awaitingAliasExists = null;
-let awaitingAliasCreation = null;
-export async function ensureIndices() {
-  if (!awaitingIndexCreation) awaitingIndexCreation = createIndices();
-  await awaitingIndexCreation;
-
-  if (Config.ELASTICSEARCH_USE_ALIASES) {
-    if (!awaitingAliasExists) awaitingAliasExists = aliasesExist()
-    const aliasesExists = await awaitingAliasExists;
-
-    if (!aliasesExists) {
-      if (!awaitingAliasCreation) awaitingAliasCreation = createAliases();
-      await awaitingAliasCreation;
-      awaitingAliasExists = aliasesExist();
-    }
-
-    // Start reindex job here if no reindex job is running already
-  }
-
-  return true;
-}
+// let awaitingIndexCreation = null;
+// let awaitingAliasExists = null;
+// let awaitingAliasCreation = null;
+// export async function ensureIndices() {
+//   if (!awaitingIndexCreation) awaitingIndexCreation = createIndices();
+//   await awaitingIndexCreation;
+//
+//   if (Config.ELASTICSEARCH_USE_ALIASES) {
+//     if (!awaitingAliasExists) awaitingAliasExists = aliasesExist()
+//     const aliasesExists = await awaitingAliasExists;
+//
+//     if (!aliasesExists) {
+//       if (!awaitingAliasCreation) awaitingAliasCreation = createAliases();
+//       await awaitingAliasCreation;
+//       awaitingAliasExists = aliasesExist();
+//     }
+//
+//     // Start reindex job here if no reindex job is running already
+//   }
+//
+//   return true;
+// }
 
 export function createIndices() {
   console.log(`Creating indices...`);
@@ -54,41 +54,92 @@ export function createIndices() {
   }));
 }
 
-export async function aliasesExist() {
-  const aliasNames = Object.keys(indices).map(indexName => `${ELASTICSEARCH_INDEX_NAME}_${indexName}`).join(',');
-  return new Promise((resolve, reject) => {
-    client.indices.existsAlias({ name: aliasNames }, (err, data) => {
+// export async function aliasesExist() {
+//   const aliasNames = Object.keys(indices).map(indexName => `${ELASTICSEARCH_INDEX_NAME}_${indexName}`).join(',');
+//   return new Promise((resolve, reject) => {
+//     client.indices.existsAlias({ name: aliasNames }, (err, data) => {
+//       if (err) return reject(err);
+//       console.log(`Testing index existence for ${aliasNames}:`, data);
+//       return resolve(data);
+//     });
+//   })
+// }
+
+// export function createAliases() {
+//   console.log(`Creating aliases...`);
+//
+//   return Promise.all(Object.keys(indices).map(indexName => {
+//     return new Promise((resolve, reject) => {
+//       // console.log('Sending mapping:', mapping);
+//       const aliasName = `${ELASTICSEARCH_INDEX_NAME}_${indexName}`;
+//       const name = `${ELASTICSEARCH_INDEX_NAME}_${indexName}-${VERSION}`;
+//
+//       client.indices.putAlias({ name: aliasName, index: name }, (err, data) => {
+//         if (err) return reject(err);
+//         console.log(`Alias ${aliasName} created pointing to ${name}.`);
+//         return resolve(data);
+//       });
+//     });
+//   }));
+// }
+
+export async function updateAlias(alias, index) {
+  const exists = await new Promise((resolve, reject) => {
+    client.indices.existsAlias({ name: alias }, (err, data) => {
       if (err) return reject(err);
-      console.log(`Testing index existence for ${aliasNames}:`, data);
+      console.log(`Alias ${alias} exists?`, data);
       return resolve(data);
     });
-  })
-}
+  });
 
-export function createAliases() {
-  console.log(`Creating aliases...`);
-  return Promise.all(Object.keys(indices).map(indexName => {
-    return new Promise((resolve, reject) => {
-      // console.log('Sending mapping:', mapping);
-      const aliasName = `${ELASTICSEARCH_INDEX_NAME}_${indexName}`;
-      const name = `${ELASTICSEARCH_INDEX_NAME}_${indexName}-${VERSION}`;
-
-      client.indices.putAlias({ name: aliasName, index: name }, (err, data) => {
+  if (exists) {
+    console.log(`Alias ${alias} exists. Deleting...`);
+    await new Promise((resolve, reject) => {
+      client.indices.deleteAlias({ name: alias }, (err, data) => {
         if (err) return reject(err);
-        console.log(`Alias ${aliasName} created pointing to ${name}.`);
+        console.log(`Alias ${alias} exists?`, data);
         return resolve(data);
       });
     });
+  }
+
+  // Create the new alias
+  return new Promise((resolve, reject) => {
+    client.indices.putAlias({ name: alias, index: index }, (err, data) => {
+      if (err) return reject(err);
+      console.log(`Alias ${alias} created pointing to ${index}.`);
+      return resolve(data);
+    });
+  });
+}
+
+export async function updateIndexingAliases() {
+  console.log(`Updating indexing aliases...`);
+
+  return Promise.all(Object.keys(indices).map(async name => {
+    const indexAliasName = `${ELASTICSEARCH_INDEX_NAME}_${name}_index`;
+    const indexName = `${ELASTICSEARCH_INDEX_NAME}_${name}-${VERSION}`;
+    return updateAlias(indexAliasName, indexName);
   }));
 }
 
-export async function reindexFromAlias() {
+export async function updateSearchAliases() {
+  console.log(`Updating search aliases...`);
+
+  return Promise.all(Object.keys(indices).map(async name => {
+    const searchAliasName = `${ELASTICSEARCH_INDEX_NAME}_${name}_search`;
+    const indexName = `${ELASTICSEARCH_INDEX_NAME}_${name}-${VERSION}`;
+    return updateAlias(searchAliasName, indexName);
+  }));
+}
+
+export async function reindexFromSearchAlias() {
   return Promise.all(Object.keys(indices).map(async indexName => {
     const task = await new Promise((resolve, reject) => {
-      const aliasName = `${ELASTICSEARCH_INDEX_NAME}_${indexName}`;
-      const name = `${ELASTICSEARCH_INDEX_NAME}_${indexName}-${VERSION}`;
+      const aliasName = `${ELASTICSEARCH_INDEX_NAME}_${indexName}_search`;
+      const name = `${ELASTICSEARCH_INDEX_NAME}_${indexName}_index`;
       const params = {
-        waitForCompletion: false, // Run task in the background
+        waitForCompletion: true, // Run task in the background
         refresh: true, // Refresh index once done
         body: {
           conflicts: "proceed", // Don't break the job if one document breaks on reindexing
@@ -120,7 +171,7 @@ export const loader = new DataLoader<any, any>(async (docs: any) => {
           const id = doc["@id"];
           const type = Helpers.typeFor([].concat(doc["@type"]));
           const parentType = Helpers.parentTypeForType(indexName, type);
-          const name = `${ELASTICSEARCH_INDEX_NAME}_${indexName}-${VERSION}`;
+          const name = `${ELASTICSEARCH_INDEX_NAME}_${indexName}_index`;
 
           console.log(`Indexing to ${indexName} as ${name} ${type} ${id} <-- ${parent} of type ${parentType}`);
           return [

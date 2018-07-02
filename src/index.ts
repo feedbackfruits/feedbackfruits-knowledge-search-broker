@@ -18,9 +18,6 @@ function parentForDoc(doc: Doc) {
 }
 
 export default async function init({ name }) {
-  const exists = await ElasticSearch.ensureIndices()
-  if (!exists) await ElasticSearch.createIndices();
-
   const receive = async (operation: Operation<Doc>) => {
     console.log('Received operation:', operation);
     const { action, data: doc } = operation;

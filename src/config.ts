@@ -11,7 +11,7 @@ const {
   INPUT_TOPIC = 'staging_updates',
   ELASTICSEARCH_ADDRESS = 'http://localhost:9200',
   ELASTICSEARCH_INDEX_NAME = 'knowledge',
-  ELASTICSEARCH_USE_ALIASES = false
+  ELASTICSEARCH_USE_ALIASES = true
 } = process.env;
 
 function getVersion() {
@@ -31,6 +31,7 @@ const INDEX_BATCH_SIZE = parseInt(process.env.INDEX_BATCH_SIZE ? process.env.IND
 
 export {
   NAME,
+  NODE_ENV,
   ELASTICSEARCH_ADDRESS,
   CAYLEY_ADDRESS,
   KNOWLEDGE_ADDRESS,
