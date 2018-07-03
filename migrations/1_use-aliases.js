@@ -58,7 +58,7 @@ async function taskFinished(task) {
 	const exists = await new Promise((resolve, reject) => {
 		console.log(`Checking existence of task:`, task);
 			const params = {
-				taskId: task.id
+				taskId: task.task
 			};
 
 			ElasticSearch.client.tasks.get(params, (err, res) => {
