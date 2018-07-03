@@ -104,7 +104,7 @@ export async function updateAlias(alias, index) {
   if (exists) {
     console.log(`Alias ${alias} exists. Deleting...`);
     await new Promise((resolve, reject) => {
-      client.indices.deleteAlias({ name: alias }, (err, data) => {
+      client.indices.deleteAlias({ name: alias, index: '_all' }, (err, data) => {
         if (err) return reject(err);
         console.log(`Alias ${alias} exists?`, data);
         return resolve(data);
