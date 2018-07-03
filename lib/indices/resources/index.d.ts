@@ -1,3 +1,5 @@
+import { Doc } from 'feedbackfruits-knowledge-engine';
+declare function isOperableDoc(doc: Doc): boolean;
 declare const _default: {
     "mappings": {
         Resource: {
@@ -73,6 +75,6 @@ declare const _default: {
     frames: {
         "@type": string;
     }[];
-    isOperableDoc: (doc: object) => boolean;
+    isOperableDoc: typeof isOperableDoc;
 };
 export default _default;

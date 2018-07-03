@@ -1,3 +1,5 @@
+import { Doc } from 'feedbackfruits-knowledge-engine';
+declare function isOperableDoc(doc: Doc): boolean;
 declare const _default: {
     "settings": {
         "analysis": {
@@ -34,6 +36,6 @@ declare const _default: {
     frame: {
         "@type": string;
     };
-    isOperableDoc: (doc: object) => boolean;
+    isOperableDoc: typeof isOperableDoc;
 };
 export default _default;
