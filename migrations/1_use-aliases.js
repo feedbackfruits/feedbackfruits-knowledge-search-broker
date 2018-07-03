@@ -1,8 +1,9 @@
 const Config = require('../lib/config');
 const ElasticSearch = require('../lib/elasticsearch');
 
+const indices = [ "resources", "autocomplete" ];
 async function reindex() {
-  return Promise.all(Object.keys(indices).map(async indexName => {
+  return Promise.all(indices.map(async indexName => {
     const task = await new Promise((resolve, reject) => {
       const aliasName = `${Config.ELASTICSEARCH_INDEX_NAME}_${indexName}`;
       const name = `${Config.ELASTICSEARCH_INDEX_NAME}_${indexName}_index`;
@@ -35,7 +36,6 @@ async function reindex() {
 
 exports.migrate = async function(client, done) {
 	async function indicesExist() {
-		const indices = [ "resources", "autocomplete" ];
 	  const names = indices
 	    .map(indexName => [ `${Config.ELASTICSEARCH_INDEX_NAME}_${indexName}` ])
 	    .reduce((memo, val) => [].concat(memo, val));
