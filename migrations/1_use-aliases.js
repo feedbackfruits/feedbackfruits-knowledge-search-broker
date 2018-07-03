@@ -2,37 +2,6 @@ const Config = require('../lib/config');
 const ElasticSearch = require('../lib/elasticsearch');
 
 const indices = [ "resources", "autocomplete" ];
-async function reindex() {
-  return Promise.all(indices.map(async indexName => {
-    const task = await new Promise((resolve, reject) => {
-      const aliasName = `${Config.ELASTICSEARCH_INDEX_NAME}_${indexName}`;
-      const name = `${Config.ELASTICSEARCH_INDEX_NAME}_${indexName}_index`;
-      console.log(`Starting reindex from ${aliasName} to ${name}...`);
-      const params = {
-        waitForCompletion: true,
-        refresh: true, // Refresh index once done
-        body: {
-          conflicts: "proceed", // Don't break the job if one document breaks on reindexing
-          source: {
-            index: aliasName
-          },
-          dest: {
-            index: name,
-            version_type: "internal", // Don't care about the version of the stale doc
-            op_type: "create", // The reindexed data is stale, so no need to update anything, just creating missing data is fine
-          }
-        }
-      };
-
-      client.reindex(params, (err, res) => {
-        if (err) return reject(err);
-        return resolve(res);
-      });
-    });
-
-    return task;
-  }));
-}
 
 exports.migrate = async function(client, done) {
 	async function indicesExist() {
@@ -48,6 +17,38 @@ exports.migrate = async function(client, done) {
 	    });
 	  })
 	}
+
+  async function reindex() {
+    return Promise.all(indices.map(async indexName => {
+      const task = await new Promise((resolve, reject) => {
+        const aliasName = `${Config.ELASTICSEARCH_INDEX_NAME}_${indexName}`;
+        const name = `${Config.ELASTICSEARCH_INDEX_NAME}_${indexName}_index`;
+        console.log(`Starting reindex from ${aliasName} to ${name}...`);
+        const params = {
+          waitForCompletion: true,
+          refresh: true, // Refresh index once done
+          body: {
+            conflicts: "proceed", // Don't break the job if one document breaks on reindexing
+            source: {
+              index: aliasName
+            },
+            dest: {
+              index: name,
+              version_type: "internal", // Don't care about the version of the stale doc
+              op_type: "create", // The reindexed data is stale, so no need to update anything, just creating missing data is fine
+            }
+          }
+        };
+
+        client.reindex(params, (err, res) => {
+          if (err) return reject(err);
+          return resolve(res);
+        });
+      });
+
+      return task;
+    }));
+  }
 
 	try {
 		const exists = await indicesExist();
