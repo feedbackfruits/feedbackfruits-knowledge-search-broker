@@ -55,23 +55,20 @@ async function reindex() {
 }
 
 async function taskFinished(task) {
-	const exists = await new Promise((resolve, reject) => {
+	const completed = await new Promise((resolve, reject) => {
 		console.log(`Checking existence of task:`, task);
 			const params = {
 				taskId: task.task
 			};
 
 			ElasticSearch.client.tasks.get(params, (err, res) => {
-				if (err) {
-					console.log('Encountered error looking for task. Assuming task finished.');
-					console.error(err);
-					return resolve(false);
-				}
-				return resolve(true);
+				if (err) return reject(err);
+				console.log('Got task data, returning task comletion status...');
+				return resolve(res.completed);
 			});
 	});
 
-	if (!exists) return true;
+	if (completed) return true;
 	return new Promise((resolve) => {
 		setTimeout(() => {
 			resolve(taskFinished(task));
