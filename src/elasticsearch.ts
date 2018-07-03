@@ -149,7 +149,7 @@ export async function reindexFromSearchAlias() {
       const name = `${ELASTICSEARCH_INDEX_NAME}_${indexName}_index`;
       console.log(`Starting reindex from ${aliasName} to ${name}...`);
       const params = {
-        waitForCompletion: true,
+        waitForCompletion: false,
         refresh: true, // Refresh index once done
         body: {
           conflicts: "proceed", // Don't break the job if one document breaks on reindexing
