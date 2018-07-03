@@ -36,7 +36,7 @@ async function reindex() {
 exports.migrate = async function(client, done) {
 	async function indicesExist() {
 		const indices = [ "resources", "autocomplete" ];
-	  const names = Object.keys(indices)
+	  const names = indices
 	    .map(indexName => [ `${Config.ELASTICSEARCH_INDEX_NAME}_${indexName}` ])
 	    .reduce((memo, val) => [].concat(memo, val));
 
@@ -82,5 +82,5 @@ exports.migrate = async function(client, done) {
 };
 
 exports.rollback = function(client, done) {
-	// done();
+	done();
 };
