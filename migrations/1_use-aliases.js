@@ -2,6 +2,7 @@ const Config = require('../lib/config');
 const ElasticSearch = require('../lib/elasticsearch');
 
 const indices = [ "resources", "autocomplete" ];
+const POLL_INTERVAL = 5000;
 
 async function indicesExist() {
 	const names = indices
@@ -24,7 +25,7 @@ async function reindex() {
 			const name = `${Config.ELASTICSEARCH_INDEX_NAME}_${indexName}_index`;
 			console.log(`Starting reindex from ${aliasName} to ${name}...`);
 			const params = {
-				waitForCompletion: true,
+				waitForCompletion: false,
 				refresh: true, // Refresh index once done
 				body: {
 					conflicts: "proceed", // Don't break the job if one document breaks on reindexing
@@ -49,8 +50,33 @@ async function reindex() {
 			});
 		});
 
-		return task;
+		return taskFinished(task);
 	}));
+}
+
+async function taskFinished(task) {
+	const exists = await new Promise((resolve, reject) => {
+		console.log(`Checking existence of task:`, task);
+			const params = {
+				taskId: task.id
+			};
+
+			ElasticSearch.client.tasks.get(params, (err, res) => {
+				if (err) {
+					console.log('Encountered error looking for task. Assuming task finished.');
+					console.error(err);
+					return resolve(false);
+				}
+				return resolve(true);
+			});
+	});
+
+	if (!exists) return true;
+	return new Promise((resolve) => {
+		setTimeout(() => {
+			resolve(taskFinished(task));
+		}, POLL_INTERVAL);
+	})
 }
 
 exports.migrate = async function(client, done) {
