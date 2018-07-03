@@ -10,8 +10,7 @@ const {
   KAFKA_ADDRESS = 'tcp://localhost:9092',
   INPUT_TOPIC = 'staging_updates',
   ELASTICSEARCH_ADDRESS = 'http://localhost:9200',
-  ELASTICSEARCH_INDEX_NAME = 'knowledge',
-  ELASTICSEARCH_USE_ALIASES = true
+  ELASTICSEARCH_INDEX_NAME = 'knowledge'
 } = process.env;
 
 function getVersion() {
@@ -38,7 +37,6 @@ export {
   KAFKA_ADDRESS,
   INPUT_TOPIC,
   ELASTICSEARCH_INDEX_NAME,
-  ELASTICSEARCH_USE_ALIASES,
   INDEX_BATCH_SIZE,
   VERSION
 };

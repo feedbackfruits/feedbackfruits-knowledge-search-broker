@@ -24,10 +24,15 @@ import indices from './indices';
 //   if (Config.ELASTICSEARCH_USE_ALIASES) {
 //     if (!awaitingAliasExists) awaitingAliasExists = aliasesExist()
 //     const aliasesExists = await awaitingAliasExists;
+//     console.log('Alises exists?', aliasesExists);
 //
 //     if (!aliasesExists) {
-//       if (!awaitingAliasCreation) awaitingAliasCreation = createAliases();
+//       if (!awaitingAliasCreation) awaitingAliasCreation = updateIndexingAliases();
 //       await awaitingAliasCreation;
+//
+//       if (!awaitingAliasCreation) awaitingAliasCreation = updateSearchAliases();
+//       await awaitingAliasCreation;
+//
 //       awaitingAliasExists = aliasesExist();
 //     }
 //
@@ -55,7 +60,11 @@ export function createIndices() {
 }
 
 // export async function aliasesExist() {
-//   const aliasNames = Object.keys(indices).map(indexName => `${ELASTICSEARCH_INDEX_NAME}_${indexName}`).join(',');
+//   const aliasNames = Object.keys(indices)
+//     .map(indexName => [ `${ELASTICSEARCH_INDEX_NAME}_${indexName}_index`, `${ELASTICSEARCH_INDEX_NAME}_${indexName}_search` ])
+//     .reduce((memo, val) => [].concat(memo, val))
+//     .join(',');
+//
 //   return new Promise((resolve, reject) => {
 //     client.indices.existsAlias({ name: aliasNames }, (err, data) => {
 //       if (err) return reject(err);
@@ -138,18 +147,19 @@ export async function reindexFromSearchAlias() {
     const task = await new Promise((resolve, reject) => {
       const aliasName = `${ELASTICSEARCH_INDEX_NAME}_${indexName}_search`;
       const name = `${ELASTICSEARCH_INDEX_NAME}_${indexName}_index`;
+      console.log(`Starting reindex from ${aliasName} to ${name}...`);
       const params = {
-        waitForCompletion: true, // Run task in the background
+        waitForCompletion: true,
         refresh: true, // Refresh index once done
         body: {
           conflicts: "proceed", // Don't break the job if one document breaks on reindexing
-          op_type: "create", // The reindexed data is stale, so no need to update anything, just creating missing data is fine
-          version_type: "internal", // Don't care about the version of the stale doc
           source: {
             index: aliasName
           },
-          destination: {
-            index: name
+          dest: {
+            index: name,
+            version_type: "internal", // Don't care about the version of the stale doc
+            op_type: "create", // The reindexed data is stale, so no need to update anything, just creating missing data is fine
           }
         }
       };
