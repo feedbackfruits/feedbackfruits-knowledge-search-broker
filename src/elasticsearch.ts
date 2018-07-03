@@ -149,7 +149,7 @@ export async function reindexFromSearchAlias() {
       const name = `${ELASTICSEARCH_INDEX_NAME}_${indexName}_index`;
       console.log(`Starting reindex from ${aliasName} to ${name}...`);
       const params = {
-        waitForCompletion: false,
+        waitForCompletion: true, //
         refresh: true, // Refresh index once done
         body: {
           conflicts: "proceed", // Don't break the job if one document breaks on reindexing
@@ -220,7 +220,8 @@ export async function index(docs: Array<{ index: string, doc: Doc, parent: strin
 
 export const client = new elasticsearch.Client({
   host: ELASTICSEARCH_ADDRESS,
-  apiVersion: '5.x'
+  apiVersion: '5.x',
+  requestTimeout: Infinity
 });
 
 export default client;
