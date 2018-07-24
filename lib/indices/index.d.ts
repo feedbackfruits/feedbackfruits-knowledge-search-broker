@@ -19,8 +19,14 @@ declare const _default: {
             };
         };
         "mappings": {
-            Entity: {
+            "Entity": {
                 properties: {
+                    "@id": {
+                        type: string;
+                    };
+                    "@type": {
+                        type: string;
+                    };
                     name: {
                         type: string;
                         analyzer: string;
@@ -36,7 +42,7 @@ declare const _default: {
             "@type": string;
         };
         isOperableDoc: (doc: object) => boolean;
-        mapDoc: (doc: object) => object;
+        mapDoc: (doc: object) => Promise<object>;
     };
     resources: {
         "mappings": {
