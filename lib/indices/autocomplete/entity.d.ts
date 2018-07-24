@@ -5,12 +5,6 @@ export declare type FeaturesObj = {
 export declare function getFeatures(doc: Doc): Promise<FeaturesObj>;
 export declare const mapping: {
     properties: {
-        "@id": {
-            type: string;
-        };
-        "@type": {
-            type: string;
-        };
         name: {
             type: string;
             analyzer: string;

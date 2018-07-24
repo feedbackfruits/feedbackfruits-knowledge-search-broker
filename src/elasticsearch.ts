@@ -175,20 +175,20 @@ export async function reindexFromSearchAlias() {
 }
 
 export const loader = new DataLoader<any, any>(async (docs: any) => {
-  const index = docs.reduce((memo, doc) => {
-    const key = doc["@id"];
-    return {
-      ...memo,
-      [key]: doc
-    }
-  }, {});
-
-  const filtered = Object.values(index);
-  console.log(`Filtered out ${docs.length - filtered.length} duplicates from a batch of ${docs.length}`);
+  // const index = docs.reduce((memo, doc) => {
+  //   const key = doc["@id"];
+  //   return {
+  //     ...memo,
+  //     [key]: doc
+  //   }
+  // }, {});
+  //
+  // const filtered = Object.values(index);
+  // console.log(`Filtered out ${docs.length - filtered.length} duplicates from a batch of ${docs.length}`);
 
   return new Promise<any[]>((resolve, reject) => {
       client.bulk({
-        body: filtered.map(({ index: indexName, doc, parent }) => {
+        body: docs.map(({ index: indexName, doc, parent }) => {
           const id = doc["@id"];
           const type = Helpers.typeFor([].concat(doc["@type"]));
           const parentType = Helpers.parentTypeForType(indexName, type);
@@ -197,16 +197,16 @@ export const loader = new DataLoader<any, any>(async (docs: any) => {
           console.log(`Indexing to ${indexName} as ${name} ${type} ${id} <-- ${parent} of type ${parentType}`);
           return [
             {
-              update: {
+              index: {
                 _index: name,
                 _id: id,
                 _type: type,
-                _retry_on_conflict: 5,
+                // _retry_on_conflict: 100,
                 // versionType: "force",
                 ...((parentType && parent) ? { parent } : {})
               }
             },
-            { doc, doc_as_upsert: true }
+            doc
           ];
         }).reduce((memo, x) => memo.concat(x), [])
       }, (err, res) => {
