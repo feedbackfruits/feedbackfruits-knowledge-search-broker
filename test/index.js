@@ -29,7 +29,7 @@ test('it indexes compacted flattened documents with particular types', async (t)
     await send({ action: 'write', key: resource['@id'], data: resource });
 
     let timeoutPromise = new Promise((resolve, reject) => {
-      setTimeout(() => resolve(), 10000);
+      setTimeout(() => resolve(), 20000);
     });
 
     await timeoutPromise;
@@ -85,7 +85,7 @@ test('it can be queried by tag(s) using parent-child logic', async (t) => {
     await send({ action: 'write', key: resource['@id'], data: resource });
 
     let timeoutPromise = new Promise((resolve, reject) => {
-      setTimeout(() => resolve(), 10000);
+      setTimeout(() => resolve(), 20000);
     });
 
     const tag = resource.tag[0];
@@ -141,7 +141,7 @@ test('it can be queried by annotation(s) using parent-child logic', async (t) =>
     await send({ action: 'write', key: resource['@id'], data: resource });
 
     let timeoutPromise = new Promise((resolve, reject) => {
-      setTimeout(() => resolve(), 10000);
+      setTimeout(() => resolve(), 20000);
     });
 
     const annotation = resource.annotation[0];

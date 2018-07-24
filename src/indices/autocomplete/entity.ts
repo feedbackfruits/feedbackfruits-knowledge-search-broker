@@ -32,7 +32,7 @@ export async function getFeatures(doc: Doc): Promise<FeaturesObj> {
   const count = await getCount(doc["@id"]);
 
   return {
-    // resourceCount: count,
+    resourceCount: count,
 
     // level: 1,
     // usage: 0.5,
@@ -48,12 +48,12 @@ export async function getFeatures(doc: Doc): Promise<FeaturesObj> {
 
 export const mapping = {
    properties: {
-      "@id": {
-        type: "keyword",
-      },
-      "@type": {
-        type: "keyword",
-      },
+      // "@id": {
+      //   type: "keyword",
+      // },
+      // "@type": {
+      //   type: "keyword",
+      // },
 
       name: {
          type: "text",
