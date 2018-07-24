@@ -175,9 +175,20 @@ export async function reindexFromSearchAlias() {
 }
 
 export const loader = new DataLoader<any, any>(async (docs: any) => {
+  const index = docs.reduce((memo, doc) => {
+    const key = doc["@id"];
+    return {
+      ...memo,
+      [key]: doc
+    }
+  }, {});
+
+  const filtered = Object.values(index);
+  console.log(`Filtered out ${docs.length - filtered.length} duplicates from a batch of ${docs.length}`);
+
   return new Promise<any[]>((resolve, reject) => {
       client.bulk({
-        body: docs.map(({ index: indexName, doc, parent }) => {
+        body: filtered.map(({ index: indexName, doc, parent }) => {
           const id = doc["@id"];
           const type = Helpers.typeFor([].concat(doc["@type"]));
           const parentType = Helpers.parentTypeForType(indexName, type);
@@ -190,7 +201,8 @@ export const loader = new DataLoader<any, any>(async (docs: any) => {
                 _index: name,
                 _id: id,
                 _type: type,
-                _retry_on_conflict: 3,
+                _retry_on_conflict: 5,
+                // versionType: "force",
                 ...((parentType && parent) ? { parent } : {})
               }
             },

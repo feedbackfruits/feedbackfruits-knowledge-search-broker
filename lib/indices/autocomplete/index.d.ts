@@ -1,6 +1,6 @@
 import { Doc } from 'feedbackfruits-knowledge-engine';
 declare function isOperableDoc(doc: Doc): boolean;
-declare function mapDoc(doc: Doc): Doc;
+declare function mapDoc(doc: Doc): Promise<Doc>;
 declare const _default: {
     "settings": {
         "analysis": {
@@ -21,8 +21,14 @@ declare const _default: {
         };
     };
     "mappings": {
-        Entity: {
+        "Entity": {
             properties: {
+                "@id": {
+                    type: string;
+                };
+                "@type": {
+                    type: string;
+                };
                 name: {
                     type: string;
                     analyzer: string;

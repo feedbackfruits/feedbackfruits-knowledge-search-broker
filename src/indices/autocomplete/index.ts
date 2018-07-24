@@ -1,6 +1,6 @@
 import { Context, Doc } from 'feedbackfruits-knowledge-engine';
 
-import Entity from './entity';
+import * as Entity from './entity';
 
 function isOperableDoc(doc: Doc): boolean {
   return typeFor([].concat(doc["@type"])) != null;
@@ -8,11 +8,19 @@ function isOperableDoc(doc: Doc): boolean {
 
 function typeFor(types: string[]): string {
   const typeMap = types.reduce((memo, type) => ({ ...memo, [type]: true }), {});
-    return  'Entity' in typeMap ? 'Entity' : null;
+  return 'Entity' in typeMap ? 'Entity' : null;
 }
 
-function mapDoc(doc: Doc): Doc {
-  return doc;
+async function mapDoc(doc: Doc): Promise<Doc> {
+  const type = typeFor([].concat(doc["@type"]));
+  if (!(type === 'Entity')) return doc;
+
+  const features = await Entity.getFeatures(doc);
+
+  return {
+    ...doc,
+    ...features,
+  };
 }
 
 export default {
@@ -38,7 +46,7 @@ export default {
       }
    },
    "mappings": {
-      Entity,
+      "Entity": Entity.mapping,
    },
    frame: {
      "@type": Context.iris.$.Entity
