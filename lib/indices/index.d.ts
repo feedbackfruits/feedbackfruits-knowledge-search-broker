@@ -36,6 +36,7 @@ declare const _default: {
             "@type": string;
         };
         isOperableDoc: (doc: object) => boolean;
+        mapDoc: (doc: object) => object;
     };
     resources: {
         "mappings": {
@@ -113,6 +114,7 @@ declare const _default: {
             "@type": string;
         }[];
         isOperableDoc: (doc: object) => boolean;
+        mapDoc: (doc: object) => object;
     };
 };
 export default _default;

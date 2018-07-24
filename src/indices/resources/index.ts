@@ -15,6 +15,17 @@ function typeFor(types: string[]): string {
             'Annotation' in typeMap ? 'Annotation' : null;
 }
 
+function mapDoc(doc: Doc): Doc {
+  const type = typeFor([].concat(doc["@type"]));
+  if (!(type === 'Resource')) return doc;
+
+  // Calculate relevance
+
+  return {
+    ...doc
+  };
+}
+
 export default {
    "mappings": {
       Resource,
@@ -32,5 +43,6 @@ export default {
        "@type": Context.iris.$.Annotation
      },
   ],
-   isOperableDoc
+   isOperableDoc,
+   mapDoc
 };

@@ -11,6 +11,10 @@ function typeFor(types: string[]): string {
     return  'Entity' in typeMap ? 'Entity' : null;
 }
 
+function mapDoc(doc: Doc): Doc {
+  return doc;
+}
+
 export default {
    "settings": {
       "analysis": {
@@ -39,5 +43,6 @@ export default {
    frame: {
      "@type": Context.iris.$.Entity
    },
-   isOperableDoc
+   isOperableDoc,
+   mapDoc
 };
