@@ -26,7 +26,7 @@ declare const _default: {
                         analyzer: string;
                         search_analyzer: string;
                     };
-                    count: {
+                    resourceCount: {
                         type: string;
                     };
                 };

@@ -181,3 +181,84 @@ test('it can be queried by annotation(s) using parent-child logic', async (t) =>
     throw e;
   }
 });
+
+test('it can be queried with some text to autocomplete', async (t) => {
+  try {
+    const send = await memux({
+      name: 'dummy-broker',
+      url: KAFKA_ADDRESS,
+      output: INPUT_TOPIC,
+      concurrency: 1
+    });
+
+    await init({
+      name: NAME,
+    });
+
+    await send({ action: 'write', key: resource['@id'], data: resource });
+
+    let timeoutPromise = new Promise((resolve, reject) => {
+      setTimeout(() => resolve(), 20000);
+    });
+
+    const text = "Math";
+    const query = {
+      size: 5,
+      _source: 'name',
+      query: {
+         function_score: {
+          query: {
+            multi_match: {
+              query: text,
+              fields: [ 'name' ]
+            }
+          },
+          field_value_factor: {
+            field: 'resourceCount',
+            modifier: 'ln2p',
+            missing: 0
+          }
+        }
+      }
+    };
+
+
+    await timeoutPromise;
+    const resourcePromise = await fetch(`${ELASTICSEARCH_ADDRESS}/${ELASTICSEARCH_INDEX_NAME}_autocomplete_search/_search`, {
+      method: 'POST',
+      body: JSON.stringify(query)
+    });
+    const resources = await resourcePromise.json();
+    console.log('Autocomplete data:', JSON.stringify(resources));
+
+    const result = resources.hits.hits.map(hit => ({
+      ...hit._source,
+      // score: hit._score
+    }));
+    const expected = [
+      {
+        "name": "Mathematics in medieval Islam",
+        // "score": 0.67467874,,
+
+      },
+      {
+        "name": "Fraction (mathematics)",
+        // "score": 0.11192161,
+
+      },
+      {
+        "name": "Division (mathematics)",
+        // "score": 0.11192161,
+
+      }
+    ];
+
+    // const sortFn = (a, b) => a["@id"].localeCompare(b["@id"]);
+
+
+    return t.deepEqual(result, expected);
+  } catch(e) {
+    console.error(e);
+    throw e;
+  }
+});
