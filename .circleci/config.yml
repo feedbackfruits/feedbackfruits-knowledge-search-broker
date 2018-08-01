@@ -45,6 +45,19 @@ jobs:
             - node_modules
           key: node_modules-{{ checksum "package.json" }}-{{ checksum "yarn.lock" }}
 
+      - run:
+          name: install dockerize
+          command: |
+            wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz
+            tar -C /usr/local/bin -xzvf dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz
+            rm dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz
+          environment:
+            DOCKERIZE_VERSION: v0.3.0
+
+      - run:
+          name: Wait for ElasticSearch
+          command: dockerize -wait http://localhost:9200 -timeout 1m
+
       - run: yarn run migrate
       - run: yarn test
       - run: yarn run coverage
