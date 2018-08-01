@@ -27,13 +27,18 @@ async function getCount(entityId: string): Promise<number> {
   return result.count;
 }
 
+export function entityIdToName(entityId: string): string {
+  return entityId.replace(/(https:\/\/en\.wikipedia\.org\/wiki\/|http:\/\/dbpedia\.org\/resource\/)/, '').replace(/_/g, ' ');
+}
+
 export type FeaturesObj = { [key: string]: any };
 export async function getFeatures(doc: Doc): Promise<FeaturesObj> {
   const count = await getCount(doc["@id"]);
+  const name = doc["name"] || entityIdToName(doc["@id"]);
 
   return {
     resourceCount: count,
-
+    name
     // level: 1,
     // usage: 0.5,
     //
@@ -61,7 +66,7 @@ export const mapping = {
          search_analyzer: "english"
       },
 
-      count: {
+      resourceCount: {
         type: "integer"
       }
    }
