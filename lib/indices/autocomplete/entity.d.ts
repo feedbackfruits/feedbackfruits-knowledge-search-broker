@@ -1,11 +1,15 @@
 import { Doc } from 'feedbackfruits-knowledge-engine';
+import { FeaturesObj } from '..';
 export declare function entityIdToName(entityId: string): string;
-export declare type FeaturesObj = {
-    [key: string]: any;
-};
 export declare function getFeatures(doc: Doc): Promise<FeaturesObj>;
 export declare const mapping: {
     properties: {
+        id: {
+            type: string;
+        };
+        type: {
+            type: string;
+        };
         name: {
             type: string;
             analyzer: string;

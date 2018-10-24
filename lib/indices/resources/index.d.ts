@@ -1,6 +1,6 @@
 import { Doc } from 'feedbackfruits-knowledge-engine';
 declare function isOperableDoc(doc: Doc): boolean;
-declare function mapDoc(doc: Doc): Doc;
+declare function mapDoc(doc: Doc): Promise<Doc>;
 declare const _default: {
     "mappings": {
         Resource: {
@@ -29,47 +29,20 @@ declare const _default: {
                 license: {
                     type: string;
                 };
-                tags: {
+                about: {
                     type: string;
+                    properties: {
+                        id: {
+                            type: string;
+                        };
+                        score: {
+                            type: string;
+                        };
+                        explicitlyMentioned: {
+                            type: string;
+                        };
+                    };
                 };
-                annotations: {
-                    type: string;
-                };
-            };
-        };
-        Tag: {
-            _parent: {
-                type: string;
-            };
-            properties: {
-                "about": {
-                    type: string;
-                };
-                score: {
-                    type: string;
-                };
-            };
-        };
-        Annotation: {
-            properties: {
-                "startPosition": {
-                    type: string;
-                };
-                "confidence": {
-                    type: string;
-                };
-                "detectedAs": {
-                    type: string;
-                };
-                "about": {
-                    type: string;
-                };
-                score: {
-                    type: string;
-                };
-            };
-            _parent: {
-                type: string;
             };
         };
     };

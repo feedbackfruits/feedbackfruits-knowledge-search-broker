@@ -1,0 +1,34 @@
+[
+  {
+    "id": "http://dbpedia.org/resource/Polysaccharide",
+    "score": 0.79647
+  },
+  {
+    "id": "http://dbpedia.org/resource/Metabolism",
+    "score": 0.987735
+  },
+  {
+    "id": "http://dbpedia.org/resource/Glycogen",
+    "score": 0.922971
+  },
+  {
+    "id": "http://dbpedia.org/resource/Glucose",
+    "score": 0.938179
+  },
+  {
+    "id": "http://dbpedia.org/resource/Enzyme",
+    "score": 0.734899
+  },
+  {
+    "id": "http://dbpedia.org/resource/Cellulose",
+    "score": 0.787128
+  },
+  {
+    "id": "http://dbpedia.org/resource/Cell_wall",
+    "score": 0.733837
+  },
+  {
+    "id": "http://dbpedia.org/resource/Carbohydrate",
+    "score": 0.717124
+  }
+]

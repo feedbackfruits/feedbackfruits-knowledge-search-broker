@@ -23,6 +23,12 @@ declare const _default: {
     "mappings": {
         "Entity": {
             properties: {
+                id: {
+                    type: string;
+                };
+                type: {
+                    type: string;
+                };
                 name: {
                     type: string;
                     analyzer: string;

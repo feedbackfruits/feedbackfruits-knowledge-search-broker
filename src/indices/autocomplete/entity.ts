@@ -1,16 +1,24 @@
 import { Doc } from 'feedbackfruits-knowledge-engine';
 import * as Config from '../../config';
 import * as ElasticSearch from '../../elasticsearch';
+import { FeaturesObj } from '..';
 
 async function getCount(entityId: string): Promise<number> {
   const name = `${Config.ELASTICSEARCH_INDEX_NAME}_resources_search`;
   const query = {
     query: {
-      has_child: {
-        type: "Tag",
+      nested: {
+        path: "about",
         query: {
-          terms: {
-            about: [ entityId ]
+          function_score: {
+            query: {
+              terms: {
+                "about.id": [ entityId ]
+              }
+            },
+            field_value_factor: {
+              field: 'about.score'
+            }
           }
         }
       }
@@ -31,7 +39,6 @@ export function entityIdToName(entityId: string): string {
   return entityId.replace(/(https:\/\/en\.wikipedia\.org\/wiki\/|http:\/\/dbpedia\.org\/resource\/)/, '').replace(/_/g, ' ');
 }
 
-export type FeaturesObj = { [key: string]: any };
 export async function getFeatures(doc: Doc): Promise<FeaturesObj> {
   const count = await getCount(doc["@id"]);
   const name = doc["name"] || entityIdToName(doc["@id"]);
@@ -53,13 +60,13 @@ export async function getFeatures(doc: Doc): Promise<FeaturesObj> {
 
 export const mapping = {
    properties: {
-      // "@id": {
-      //   type: "keyword",
-      // },
-      // "@type": {
-      //   type: "keyword",
-      // },
-
+      id: {
+        type: "keyword",
+      },
+      type: {
+        type: "keyword",
+      },
+      
       name: {
          type: "text",
          analyzer: "edge_ngram_analyzer",

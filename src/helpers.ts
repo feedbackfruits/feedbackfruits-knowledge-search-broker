@@ -12,9 +12,7 @@ import indices from './indices';
 export function typeFor(types: string[]): string {
   const typeMap = types.reduce((memo, type) => ({ ...memo, [type]: true }), {});
     return  'Resource' in typeMap ? 'Resource' :
-            'Entity' in typeMap ? 'Entity' :
-            'Tag' in typeMap ? 'Tag' :
-            'Annotation' in typeMap ? 'Annotation' : null;
+            'Entity' in typeMap ? 'Entity' : null;
 }
 
 export function parentFor(original: Doc, childIds: object): object {

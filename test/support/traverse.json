@@ -1,0 +1,186 @@
+[
+  {
+    "id": "https://knowledge.express/tag#aHR0cHM6Ly9vY3cubWl0LmVkdS9jb3Vyc2VzL2NoZW1pc3RyeS81LTA3c2MtYmlvbG9naWNhbC1jaGVtaXN0cnktaS1mYWxsLTIwMTMvbW9kdWxlLWlpL3Nlc3Npb24tOC9NSVQ1XzA3U0NGMTNfTGVjMTMucGRmLWh0dHA6Ly9kYnBlZGlhLm9yZy9yZXNvdXJjZS9Qb2x5c2FjY2hhcmlkZQ==",
+    "type": "https://knowledge.express/Tag",
+    "attributes": {
+      "about": {
+        "id": "http://dbpedia.org/resource/Polysaccharide",
+        "type": [
+          {
+            "id": "https://knowledge.express/Entity"
+          }
+        ]
+      },
+      "score": 0.79647
+    },
+    "score": 1,
+    "paths": [
+      [
+        "https://ocw.mit.edu/courses/chemistry/5-07sc-biological-chemistry-i-fall-2013/module-ii/session-8/MIT5_07SCF13_Lec13.pdf",
+        "https://knowledge.express/tag",
+        "https://knowledge.express/tag#aHR0cHM6Ly9vY3cubWl0LmVkdS9jb3Vyc2VzL2NoZW1pc3RyeS81LTA3c2MtYmlvbG9naWNhbC1jaGVtaXN0cnktaS1mYWxsLTIwMTMvbW9kdWxlLWlpL3Nlc3Npb24tOC9NSVQ1XzA3U0NGMTNfTGVjMTMucGRmLWh0dHA6Ly9kYnBlZGlhLm9yZy9yZXNvdXJjZS9Qb2x5c2FjY2hhcmlkZQ=="
+      ]
+    ]
+  },
+  {
+    "id": "https://knowledge.express/tag#aHR0cHM6Ly9vY3cubWl0LmVkdS9jb3Vyc2VzL2NoZW1pc3RyeS81LTA3c2MtYmlvbG9naWNhbC1jaGVtaXN0cnktaS1mYWxsLTIwMTMvbW9kdWxlLWlpL3Nlc3Npb24tOC9NSVQ1XzA3U0NGMTNfTGVjMTMucGRmLWh0dHA6Ly9kYnBlZGlhLm9yZy9yZXNvdXJjZS9NZXRhYm9saXNt",
+    "type": "https://knowledge.express/Tag",
+    "attributes": {
+      "about": {
+        "id": "http://dbpedia.org/resource/Metabolism",
+        "type": [
+          {
+            "id": "https://knowledge.express/Entity"
+          }
+        ]
+      },
+      "score": 0.987735
+    },
+    "score": 1,
+    "paths": [
+      [
+        "https://ocw.mit.edu/courses/chemistry/5-07sc-biological-chemistry-i-fall-2013/module-ii/session-8/MIT5_07SCF13_Lec13.pdf",
+        "https://knowledge.express/tag",
+        "https://knowledge.express/tag#aHR0cHM6Ly9vY3cubWl0LmVkdS9jb3Vyc2VzL2NoZW1pc3RyeS81LTA3c2MtYmlvbG9naWNhbC1jaGVtaXN0cnktaS1mYWxsLTIwMTMvbW9kdWxlLWlpL3Nlc3Npb24tOC9NSVQ1XzA3U0NGMTNfTGVjMTMucGRmLWh0dHA6Ly9kYnBlZGlhLm9yZy9yZXNvdXJjZS9NZXRhYm9saXNt"
+      ]
+    ]
+  },
+  {
+    "id": "https://knowledge.express/tag#aHR0cHM6Ly9vY3cubWl0LmVkdS9jb3Vyc2VzL2NoZW1pc3RyeS81LTA3c2MtYmlvbG9naWNhbC1jaGVtaXN0cnktaS1mYWxsLTIwMTMvbW9kdWxlLWlpL3Nlc3Npb24tOC9NSVQ1XzA3U0NGMTNfTGVjMTMucGRmLWh0dHA6Ly9kYnBlZGlhLm9yZy9yZXNvdXJjZS9HbHljb2dlbg==",
+    "type": "https://knowledge.express/Tag",
+    "attributes": {
+      "about": {
+        "id": "http://dbpedia.org/resource/Glycogen",
+        "type": [
+          {
+            "id": "https://knowledge.express/Entity"
+          }
+        ]
+      },
+      "score": 0.922971
+    },
+    "score": 1,
+    "paths": [
+      [
+        "https://ocw.mit.edu/courses/chemistry/5-07sc-biological-chemistry-i-fall-2013/module-ii/session-8/MIT5_07SCF13_Lec13.pdf",
+        "https://knowledge.express/tag",
+        "https://knowledge.express/tag#aHR0cHM6Ly9vY3cubWl0LmVkdS9jb3Vyc2VzL2NoZW1pc3RyeS81LTA3c2MtYmlvbG9naWNhbC1jaGVtaXN0cnktaS1mYWxsLTIwMTMvbW9kdWxlLWlpL3Nlc3Npb24tOC9NSVQ1XzA3U0NGMTNfTGVjMTMucGRmLWh0dHA6Ly9kYnBlZGlhLm9yZy9yZXNvdXJjZS9HbHljb2dlbg=="
+      ]
+    ]
+  },
+  {
+    "id": "https://knowledge.express/tag#aHR0cHM6Ly9vY3cubWl0LmVkdS9jb3Vyc2VzL2NoZW1pc3RyeS81LTA3c2MtYmlvbG9naWNhbC1jaGVtaXN0cnktaS1mYWxsLTIwMTMvbW9kdWxlLWlpL3Nlc3Npb24tOC9NSVQ1XzA3U0NGMTNfTGVjMTMucGRmLWh0dHA6Ly9kYnBlZGlhLm9yZy9yZXNvdXJjZS9HbHVjb3Nl",
+    "type": "https://knowledge.express/Tag",
+    "attributes": {
+      "about": {
+        "id": "http://dbpedia.org/resource/Glucose",
+        "type": [
+          {
+            "id": "https://knowledge.express/Entity"
+          }
+        ]
+      },
+      "score": 0.938179
+    },
+    "score": 1,
+    "paths": [
+      [
+        "https://ocw.mit.edu/courses/chemistry/5-07sc-biological-chemistry-i-fall-2013/module-ii/session-8/MIT5_07SCF13_Lec13.pdf",
+        "https://knowledge.express/tag",
+        "https://knowledge.express/tag#aHR0cHM6Ly9vY3cubWl0LmVkdS9jb3Vyc2VzL2NoZW1pc3RyeS81LTA3c2MtYmlvbG9naWNhbC1jaGVtaXN0cnktaS1mYWxsLTIwMTMvbW9kdWxlLWlpL3Nlc3Npb24tOC9NSVQ1XzA3U0NGMTNfTGVjMTMucGRmLWh0dHA6Ly9kYnBlZGlhLm9yZy9yZXNvdXJjZS9HbHVjb3Nl"
+      ]
+    ]
+  },
+  {
+    "id": "https://knowledge.express/tag#aHR0cHM6Ly9vY3cubWl0LmVkdS9jb3Vyc2VzL2NoZW1pc3RyeS81LTA3c2MtYmlvbG9naWNhbC1jaGVtaXN0cnktaS1mYWxsLTIwMTMvbW9kdWxlLWlpL3Nlc3Npb24tOC9NSVQ1XzA3U0NGMTNfTGVjMTMucGRmLWh0dHA6Ly9kYnBlZGlhLm9yZy9yZXNvdXJjZS9Fbnp5bWU=",
+    "type": "https://knowledge.express/Tag",
+    "attributes": {
+      "about": {
+        "id": "http://dbpedia.org/resource/Enzyme",
+        "type": [
+          {
+            "id": "https://knowledge.express/Entity"
+          }
+        ]
+      },
+      "score": 0.734899
+    },
+    "score": 1,
+    "paths": [
+      [
+        "https://ocw.mit.edu/courses/chemistry/5-07sc-biological-chemistry-i-fall-2013/module-ii/session-8/MIT5_07SCF13_Lec13.pdf",
+        "https://knowledge.express/tag",
+        "https://knowledge.express/tag#aHR0cHM6Ly9vY3cubWl0LmVkdS9jb3Vyc2VzL2NoZW1pc3RyeS81LTA3c2MtYmlvbG9naWNhbC1jaGVtaXN0cnktaS1mYWxsLTIwMTMvbW9kdWxlLWlpL3Nlc3Npb24tOC9NSVQ1XzA3U0NGMTNfTGVjMTMucGRmLWh0dHA6Ly9kYnBlZGlhLm9yZy9yZXNvdXJjZS9Fbnp5bWU="
+      ]
+    ]
+  },
+  {
+    "id": "https://knowledge.express/tag#aHR0cHM6Ly9vY3cubWl0LmVkdS9jb3Vyc2VzL2NoZW1pc3RyeS81LTA3c2MtYmlvbG9naWNhbC1jaGVtaXN0cnktaS1mYWxsLTIwMTMvbW9kdWxlLWlpL3Nlc3Npb24tOC9NSVQ1XzA3U0NGMTNfTGVjMTMucGRmLWh0dHA6Ly9kYnBlZGlhLm9yZy9yZXNvdXJjZS9DZWxsdWxvc2U=",
+    "type": "https://knowledge.express/Tag",
+    "attributes": {
+      "about": {
+        "id": "http://dbpedia.org/resource/Cellulose",
+        "type": [
+          {
+            "id": "https://knowledge.express/Entity"
+          }
+        ]
+      },
+      "score": 0.787128
+    },
+    "score": 1,
+    "paths": [
+      [
+        "https://ocw.mit.edu/courses/chemistry/5-07sc-biological-chemistry-i-fall-2013/module-ii/session-8/MIT5_07SCF13_Lec13.pdf",
+        "https://knowledge.express/tag",
+        "https://knowledge.express/tag#aHR0cHM6Ly9vY3cubWl0LmVkdS9jb3Vyc2VzL2NoZW1pc3RyeS81LTA3c2MtYmlvbG9naWNhbC1jaGVtaXN0cnktaS1mYWxsLTIwMTMvbW9kdWxlLWlpL3Nlc3Npb24tOC9NSVQ1XzA3U0NGMTNfTGVjMTMucGRmLWh0dHA6Ly9kYnBlZGlhLm9yZy9yZXNvdXJjZS9DZWxsdWxvc2U="
+      ]
+    ]
+  },
+  {
+    "id": "https://knowledge.express/tag#aHR0cHM6Ly9vY3cubWl0LmVkdS9jb3Vyc2VzL2NoZW1pc3RyeS81LTA3c2MtYmlvbG9naWNhbC1jaGVtaXN0cnktaS1mYWxsLTIwMTMvbW9kdWxlLWlpL3Nlc3Npb24tOC9NSVQ1XzA3U0NGMTNfTGVjMTMucGRmLWh0dHA6Ly9kYnBlZGlhLm9yZy9yZXNvdXJjZS9DZWxsX3dhbGw=",
+    "type": "https://knowledge.express/Tag",
+    "attributes": {
+      "about": {
+        "id": "http://dbpedia.org/resource/Cell_wall",
+        "type": [
+          {
+            "id": "https://knowledge.express/Entity"
+          }
+        ]
+      },
+      "score": 0.733837
+    },
+    "score": 1,
+    "paths": [
+      [
+        "https://ocw.mit.edu/courses/chemistry/5-07sc-biological-chemistry-i-fall-2013/module-ii/session-8/MIT5_07SCF13_Lec13.pdf",
+        "https://knowledge.express/tag",
+        "https://knowledge.express/tag#aHR0cHM6Ly9vY3cubWl0LmVkdS9jb3Vyc2VzL2NoZW1pc3RyeS81LTA3c2MtYmlvbG9naWNhbC1jaGVtaXN0cnktaS1mYWxsLTIwMTMvbW9kdWxlLWlpL3Nlc3Npb24tOC9NSVQ1XzA3U0NGMTNfTGVjMTMucGRmLWh0dHA6Ly9kYnBlZGlhLm9yZy9yZXNvdXJjZS9DZWxsX3dhbGw="
+      ]
+    ]
+  },
+  {
+    "id": "https://knowledge.express/tag#aHR0cHM6Ly9vY3cubWl0LmVkdS9jb3Vyc2VzL2NoZW1pc3RyeS81LTA3c2MtYmlvbG9naWNhbC1jaGVtaXN0cnktaS1mYWxsLTIwMTMvbW9kdWxlLWlpL3Nlc3Npb24tOC9NSVQ1XzA3U0NGMTNfTGVjMTMucGRmLWh0dHA6Ly9kYnBlZGlhLm9yZy9yZXNvdXJjZS9DYXJib2h5ZHJhdGU=",
+    "type": "https://knowledge.express/Tag",
+    "attributes": {
+      "about": {
+        "id": "http://dbpedia.org/resource/Carbohydrate",
+        "type": [
+          {
+            "id": "https://knowledge.express/Entity"
+          }
+        ]
+      },
+      "score": 0.717124
+    },
+    "score": 1,
+    "paths": [
+      [
+        "https://ocw.mit.edu/courses/chemistry/5-07sc-biological-chemistry-i-fall-2013/module-ii/session-8/MIT5_07SCF13_Lec13.pdf",
+        "https://knowledge.express/tag",
+        "https://knowledge.express/tag#aHR0cHM6Ly9vY3cubWl0LmVkdS9jb3Vyc2VzL2NoZW1pc3RyeS81LTA3c2MtYmlvbG9naWNhbC1jaGVtaXN0cnktaS1mYWxsLTIwMTMvbW9kdWxlLWlpL3Nlc3Npb24tOC9NSVQ1XzA3U0NGMTNfTGVjMTMucGRmLWh0dHA6Ly9kYnBlZGlhLm9yZy9yZXNvdXJjZS9DYXJib2h5ZHJhdGU="
+      ]
+    ]
+  }
+]

@@ -1,8 +1,6 @@
 import { Context, Doc } from 'feedbackfruits-knowledge-engine';
 
-import Resource from './resource';
-import Tag from './tag';
-import Annotation from './annotation';
+import * as Resource from './resource';
 
 function isOperableDoc(doc: Doc): boolean {
   return typeFor([].concat(doc["@type"])) != null;
@@ -10,37 +8,41 @@ function isOperableDoc(doc: Doc): boolean {
 
 function typeFor(types: string[]): string {
   const typeMap = types.reduce((memo, type) => ({ ...memo, [type]: true }), {});
-    return  'Resource' in typeMap ? 'Resource' :
-            'Tag' in typeMap ? 'Tag' :
-            'Annotation' in typeMap ? 'Annotation' : null;
+  return 'Resource' in typeMap ? 'Resource' : null;
 }
 
-function mapDoc(doc: Doc): Doc {
+function filterDoc(doc: Doc): Doc {
+  const allowedKeys = Object.keys(Resource.mapping.properties).reduce((memo, key) => ({ ...memo, [key]: true }), {});
+  return Object.entries(doc).reduce((memo, [ key, value ]) => {
+    return {
+      ...memo,
+      ...( key in allowedKeys ? { [key]: value } : {})
+    }
+  }, {});
+}
+
+async function mapDoc(doc: Doc): Promise<Doc> {
   const type = typeFor([].concat(doc["@type"]));
   if (!(type === 'Resource')) return doc;
 
-  // Calculate relevance
+  const features = await Resource.getFeatures(doc);
 
-  return {
-    ...doc
-  };
+  return filterDoc({
+    id: doc["@id"],
+    type: doc["@type"],
+    
+    ...doc,
+    ...features
+  });
 }
 
 export default {
    "mappings": {
-      Resource,
-      Tag,
-      Annotation,
+      Resource: Resource.mapping,
    },
    frames: [
      {
        "@type": Context.iris.$.Resource
-     },
-     {
-       "@type": Context.iris.$.Tag
-     },
-     {
-       "@type": Context.iris.$.Annotation
      },
   ],
    isOperableDoc,
