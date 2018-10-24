@@ -1,4 +1,7 @@
-declare const _default: {
+import { Doc } from 'feedbackfruits-knowledge-engine';
+import { FeaturesObj } from '..';
+export declare function getFeatures(doc: Doc): Promise<FeaturesObj>;
+export declare const mapping: {
     properties: {
         id: {
             type: string;
@@ -24,12 +27,20 @@ declare const _default: {
         license: {
             type: string;
         };
-        tags: {
+        about: {
             type: string;
-        };
-        annotations: {
-            type: string;
+            properties: {
+                id: {
+                    type: string;
+                };
+                score: {
+                    type: string;
+                };
+                explicitlyMentioned: {
+                    type: string;
+                };
+            };
         };
     };
 };
-export default _default;
+export default mapping;

@@ -59,39 +59,6 @@ export function createIndices() {
   }));
 }
 
-// export async function aliasesExist() {
-//   const aliasNames = Object.keys(indices)
-//     .map(indexName => [ `${ELASTICSEARCH_INDEX_NAME}_${indexName}_index`, `${ELASTICSEARCH_INDEX_NAME}_${indexName}_search` ])
-//     .reduce((memo, val) => [].concat(memo, val))
-//     .join(',');
-//
-//   return new Promise((resolve, reject) => {
-//     client.indices.existsAlias({ name: aliasNames }, (err, data) => {
-//       if (err) return reject(err);
-//       console.log(`Testing index existence for ${aliasNames}:`, data);
-//       return resolve(data);
-//     });
-//   })
-// }
-
-// export function createAliases() {
-//   console.log(`Creating aliases...`);
-//
-//   return Promise.all(Object.keys(indices).map(indexName => {
-//     return new Promise((resolve, reject) => {
-//       // console.log('Sending mapping:', mapping);
-//       const aliasName = `${ELASTICSEARCH_INDEX_NAME}_${indexName}`;
-//       const name = `${ELASTICSEARCH_INDEX_NAME}_${indexName}-${VERSION}`;
-//
-//       client.indices.putAlias({ name: aliasName, index: name }, (err, data) => {
-//         if (err) return reject(err);
-//         console.log(`Alias ${aliasName} created pointing to ${name}.`);
-//         return resolve(data);
-//       });
-//     });
-//   }));
-// }
-
 export async function updateAlias(alias, index) {
   const exists = await new Promise((resolve, reject) => {
     client.indices.existsAlias({ name: alias }, (err, data) => {
@@ -175,35 +142,22 @@ export async function reindexFromSearchAlias() {
 }
 
 export const loader = new DataLoader<any, any>(async (docs: any) => {
-  // const index = docs.reduce((memo, doc) => {
-  //   const key = doc["@id"];
-  //   return {
-  //     ...memo,
-  //     [key]: doc
-  //   }
-  // }, {});
-  //
-  // const filtered = Object.values(index);
-  // console.log(`Filtered out ${docs.length - filtered.length} duplicates from a batch of ${docs.length}`);
-
   return new Promise<any[]>((resolve, reject) => {
       client.bulk({
         body: docs.map(({ index: indexName, doc, parent }) => {
-          const id = doc["@id"];
-          const type = Helpers.typeFor([].concat(doc["@type"]));
-          const parentType = Helpers.parentTypeForType(indexName, type);
+          const id = doc["id"];
+          const type = Helpers.typeFor([].concat(doc["type"]));
+          // const parentType = Helpers.parentTypeForType(indexName, type);
           const name = `${ELASTICSEARCH_INDEX_NAME}_${indexName}_index`;
 
-          console.log(`Indexing to ${indexName} as ${name} ${type} ${id} <-- ${parent} of type ${parentType}`);
+          console.log(`Indexing to ${indexName} as ${name} ${type} ${id}`);
           return [
             {
               index: {
                 _index: name,
                 _id: id,
                 _type: type,
-                // _retry_on_conflict: 100,
-                // versionType: "force",
-                ...((parentType && parent) ? { parent } : {})
+                // ...((parentType && parent) ? { parent } : {})
               }
             },
             doc
@@ -224,15 +178,15 @@ export const loader = new DataLoader<any, any>(async (docs: any) => {
 
 let i = 0;
 export async function index(docs: Array<{ index: string, doc: Doc, parent: string | null }>): Promise<void> {
-  if (docs.length === 0) return Promise.resolve();
   console.log(`Indexing: ${i++}, docs length ${docs.length}.`);
+  if (docs.length === 0) return Promise.resolve();
   await Promise.all(docs.map(doc => loader.load(doc)));
   return;
 }
 
 export const client = new elasticsearch.Client({
   host: ELASTICSEARCH_ADDRESS,
-  apiVersion: '5.x',
+  apiVersion: '5.1',
   requestTimeout: Infinity
 });
 

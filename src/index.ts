@@ -42,7 +42,9 @@ export default async function init({ name }) {
           console.log(`Proceeding with index:`, compacted["@id"], "with parent", parent)
           const mapped = await index.mapDoc(compacted);
 
-          return ElasticSearch.index([ { doc: mapped, parent, index: indexName } ])
+          console.log('Mapped doc:', mapped);
+
+          await ElasticSearch.index([ { doc: mapped, parent, index: indexName } ])
           // const filtered = flattenedWithParents.filter(({ doc }) => {
           //   return index.isOperableDoc(doc);
           // });

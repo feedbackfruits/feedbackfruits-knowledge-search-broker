@@ -45,7 +45,7 @@
     "dotenv": "^2.0.0",
     "east": "^1.0.0",
     "east-elasticsearch": "^1.0.1",
-    "elasticsearch": "^12.1.3",
+    "elasticsearch": "^15.1.1",
     "feedbackfruits-knowledge-engine": "github:feedbackfruits/feedbackfruits-knowledge-engine#^1.4.1",
     "git-repo-version": "^1.0.2",
     "memux": "github:knowledge-express/memux#~0.4.2",
@@ -58,7 +58,8 @@
     "typescript": "^2.6.1"
   },
   "devDependencies": {
-    "ava": "^0.20.0",
+    "ava": "^0.25.0",
+    "ava-ts": "^0.25.1",
     "babel-plugin-transform-object-rest-spread": "^6.26.0",
     "babel-plugin-transform-runtime": "^6.23.0",
     "babel-preset-es2015": "^6.24.1",
@@ -70,7 +71,8 @@
     "nodemon": "^1.11.0",
     "nyc": "^11.1.0",
     "supertest": "^3.0.0",
-    "tap": "^5.7.0"
+    "tap": "^5.7.0",
+    "ts-node": "^7.0.1"
   },
   "engines": {
     "node": "8.5.0",

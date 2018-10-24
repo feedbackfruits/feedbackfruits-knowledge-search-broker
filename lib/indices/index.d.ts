@@ -1,3 +1,6 @@
+export declare type FeaturesObj = {
+    [key: string]: any;
+};
 declare const _default: {
     autocomplete: {
         "settings": {
@@ -21,6 +24,12 @@ declare const _default: {
         "mappings": {
             "Entity": {
                 properties: {
+                    id: {
+                        type: string;
+                    };
+                    type: {
+                        type: string;
+                    };
                     name: {
                         type: string;
                         analyzer: string;
@@ -66,47 +75,20 @@ declare const _default: {
                     license: {
                         type: string;
                     };
-                    tags: {
+                    about: {
                         type: string;
+                        properties: {
+                            id: {
+                                type: string;
+                            };
+                            score: {
+                                type: string;
+                            };
+                            explicitlyMentioned: {
+                                type: string;
+                            };
+                        };
                     };
-                    annotations: {
-                        type: string;
-                    };
-                };
-            };
-            Tag: {
-                _parent: {
-                    type: string;
-                };
-                properties: {
-                    "about": {
-                        type: string;
-                    };
-                    score: {
-                        type: string;
-                    };
-                };
-            };
-            Annotation: {
-                properties: {
-                    "startPosition": {
-                        type: string;
-                    };
-                    "confidence": {
-                        type: string;
-                    };
-                    "detectedAs": {
-                        type: string;
-                    };
-                    "about": {
-                        type: string;
-                    };
-                    score: {
-                        type: string;
-                    };
-                };
-                _parent: {
-                    type: string;
                 };
             };
         };
@@ -114,7 +96,7 @@ declare const _default: {
             "@type": string;
         }[];
         isOperableDoc: (doc: object) => boolean;
-        mapDoc: (doc: object) => object;
+        mapDoc: (doc: object) => Promise<object>;
     };
 };
 export default _default;

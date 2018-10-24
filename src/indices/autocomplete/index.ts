@@ -11,16 +11,33 @@ function typeFor(types: string[]): string {
   return 'Entity' in typeMap ? 'Entity' : null;
 }
 
+function filterDoc(doc: Doc): Doc {
+  const allowedKeys = Object.keys(Entity.mapping.properties).reduce((memo, key) => ({ ...memo, [key]: true }), {});
+  return Object.entries(doc).reduce((memo, [ key, value ]) => {
+    return {
+      ...memo,
+      ...( key in allowedKeys ? { [key]: value } : {})
+    }
+  }, {});
+}
+
 async function mapDoc(doc: Doc): Promise<Doc> {
   const type = typeFor([].concat(doc["@type"]));
   if (!(type === 'Entity')) return doc;
 
   const features = await Entity.getFeatures(doc);
 
-  return {
+  const filtered = filterDoc({
+    id: doc["@id"],
+    type: doc["@type"],
+
     ...doc,
     ...features,
-  };
+  });
+
+  console.log('Filtered doc:', filtered);
+
+  return filtered;
 }
 
 export default {
