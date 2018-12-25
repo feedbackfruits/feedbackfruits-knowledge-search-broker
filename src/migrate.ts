@@ -5,24 +5,20 @@ export const POLL_INTERVAL = 5000;
 
 export async function migrate(scriptPerIndex: { [key: string]: string }) {
   const indices = Object.keys(scriptPerIndex);
-	const exists = await indicesExist(indices);
   const versionedExist = await versionedIndicesExist(indices);
   if (!versionedExist) {
     // Create new indices based on version
     await ElasticSearch.createIndices();
 
     await ElasticSearch.updateIndexingAliases();
-  }
 
-	if (exists) {
     await Promise.all(indices.map(async indexName => {
       // Execute reindex operation in the background
-      const script = scriptPerIndex[indexName]
+      const script = scriptPerIndex[indexName];
+      if (script == null) return;
       await reindex("resources", script);
     }));
-	}
 
-  if (!versionedExist) {
     // Update search aliases
     await ElasticSearch.updateSearchAliases();
   }
@@ -32,7 +28,7 @@ export async function migrate(scriptPerIndex: { [key: string]: string }) {
 export async function indicesExist(indices: string[]) {
 	const names = indices
 	.map(indexName => [ `${Config.ELASTICSEARCH_INDEX_NAME}_${indexName}` ])
-	.reduce((memo, val) => [].concat(memo, val));
+	.reduce((memo, val) => [].concat(memo, val), []);
 
 	return new Promise((resolve, reject) => {
 		ElasticSearch.client.indices.exists({ index: names }, (err, data) => {
