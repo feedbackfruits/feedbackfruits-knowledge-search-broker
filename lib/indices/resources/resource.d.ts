@@ -27,6 +27,9 @@ export declare const mapping: {
         license: {
             type: string;
         };
+        topic: {
+            type: string;
+        };
         about: {
             type: string;
             properties: {

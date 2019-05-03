@@ -75,6 +75,9 @@ declare const _default: {
                     license: {
                         type: string;
                     };
+                    topic: {
+                        type: string;
+                    };
                     about: {
                         type: string;
                         properties: {

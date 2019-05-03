@@ -61,6 +61,10 @@ export const mapping = {
       type: "keyword",
     },
 
+    topic: {
+     type: "keyword"
+    },
+
     about: {
       type: "nested",
       properties: {
