@@ -186,7 +186,7 @@ export async function index(docs: Array<{ index: string, doc: Doc, parent: strin
 
 export const client = new elasticsearch.Client({
   host: ELASTICSEARCH_ADDRESS,
-  apiVersion: '5.1',
+  apiVersion: '6.8',
   requestTimeout: Infinity
 });
 

@@ -1,6 +1,6 @@
 const Package = require('../package.json');
 const _getVersion = require('git-repo-version');
-require('dotenv').load({ silent: true });
+require('dotenv').config();
 
 const {
   NODE_ENV = 'development',
