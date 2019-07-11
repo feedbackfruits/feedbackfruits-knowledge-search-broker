@@ -24,13 +24,14 @@ function filterDoc(doc: Doc): Doc {
 async function mapDoc(doc: Doc): Promise<Doc> {
   const type = typeFor([].concat(doc["@type"]));
   if (!(type === 'Resource')) return doc;
+  if (!("tag" in doc || "annotation" in doc)) return doc;
 
   const features = await Resource.getFeatures(doc);
 
   return filterDoc({
     id: doc["@id"],
     type: doc["@type"],
-    
+
     ...doc,
     ...features
   });
