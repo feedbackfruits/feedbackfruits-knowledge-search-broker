@@ -27,7 +27,7 @@
     "east": "^1.0.0",
     "east-elasticsearch": "^1.0.1",
     "elasticsearch": "^16.3.0",
-    "feedbackfruits-knowledge-engine": "github:feedbackfruits/feedbackfruits-knowledge-engine#^1.4.5",
+    "feedbackfruits-knowledge-engine": "github:feedbackfruits/feedbackfruits-knowledge-engine#^1.4.6",
     "git-repo-version": "^1.0.2",
     "memux": "github:knowledge-express/memux#~0.4.2",
     "node-fetch": "^2.6.0",
