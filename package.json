@@ -30,7 +30,7 @@
     "feedbackfruits-knowledge-engine": "github:feedbackfruits/feedbackfruits-knowledge-engine#^1.4.6",
     "git-repo-version": "^1.0.2",
     "memux": "github:knowledge-express/memux#~0.4.2",
-    "node-fetch": "^2.6.0",
+    "node-fetch": "^2.6.1",
     "p-queue": "^6.0.2",
     "rxjs": "^6.5.2",
     "tslint": "^5.5.0",
